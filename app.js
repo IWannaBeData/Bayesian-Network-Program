@@ -5,7 +5,7 @@ const state = {
   nodes: [],
   edges: [],
   selectedNodeId: null,
-  selectedEdgeId: null,
+  selectedEdgeIds: new Set(),
   highlightedNodeIds: new Set(),
   tool: 'select',
   pendingArrowSourceId: null,
@@ -18,6 +18,7 @@ const state = {
 };
 
 const canvas = document.getElementById('canvas');
+const canvasWrap = document.getElementById('canvasWrap');
 const viewport = document.getElementById('viewport');
 const edgeLayer = document.getElementById('edgeLayer');
 const inspector = document.getElementById('inspector');
@@ -26,10 +27,13 @@ const nodeInspector = document.getElementById('nodeInspector');
 const edgeInspector = document.getElementById('edgeInspector');
 const nodeNameInput = document.getElementById('nodeName');
 const nodeTypeInput = document.getElementById('nodeType');
+const nodeRoleInput = document.getElementById('nodeRole');
 const evidenceSelect = document.getElementById('evidenceSelect');
 const cptContainer = document.getElementById('cptContainer');
 const statePills = document.getElementById('statePills');
 const newStateInput = document.getElementById('newStateInput');
+const probabilityStateSelect = document.getElementById('probabilityStateSelect');
+const probabilityValue = document.getElementById('probabilityValue');
 const inferenceOutput = document.getElementById('inferenceOutput');
 const summaryOutput = document.getElementById('summaryOutput');
 
@@ -41,6 +45,9 @@ function setupEvents() {
   document.getElementById('resetViewBtn').addEventListener('click', resetView);
   document.getElementById('highlightAllBtn').addEventListener('click', highlightAllNodes);
   document.getElementById('clearHighlightBtn').addEventListener('click', clearHighlights);
+  document.getElementById('gridToggle').addEventListener('change', (e) => {
+    canvasWrap.classList.toggle('grid-on', e.target.checked);
+  });
 
   nodeNameInput.addEventListener('input', () => {
     const node = getSelectedNode();
@@ -48,6 +55,7 @@ function setupEvents() {
     node.name = nodeNameInput.value;
     renderNodes();
     renderEdges();
+    updatePlainSummaryForCurrentSelection();
   });
 
   evidenceSelect.addEventListener('change', () => {
@@ -55,8 +63,9 @@ function setupEvents() {
     if (!node) return;
     node.evidence = evidenceSelect.value === '__none__' ? null : evidenceSelect.value;
     runInference(false);
-    renderNodes();
   });
+
+  probabilityStateSelect.addEventListener('change', () => updateProbabilityReadout());
 
   newStateInput.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
@@ -67,9 +76,6 @@ function setupEvents() {
   document.getElementById('addStateBtn').addEventListener('click', addStateFromInput);
   document.getElementById('runInferenceBtn').addEventListener('click', () => runInference(true));
 
-  document.getElementById('uiHueInput').addEventListener('input', (event) => {
-    document.documentElement.style.setProperty('--ui-hue', String(event.target.value));
-  });
   document.getElementById('nodeLightInput').addEventListener('input', (event) => {
     state.nodeLight = Number(event.target.value);
     renderNodes();
@@ -86,7 +92,10 @@ function setupEvents() {
   canvas.addEventListener('wheel', onCanvasWheel, { passive: false });
   canvas.addEventListener('mousedown', onCanvasMouseDown);
   canvas.addEventListener('click', (event) => {
-    if (event.target === canvas || event.target === viewport || event.target === edgeLayer) clearSelection();
+    if (event.target === canvas || event.target === viewport || event.target === edgeLayer) {
+      setTool('select');
+      clearSelection();
+    }
   });
 
   window.addEventListener('mousemove', onMouseMove);
@@ -124,11 +133,12 @@ function addNode(type) {
     evidence: type === 'evidence' ? states[0] : null,
     cpt: {},
     heatProb: null,
+    posterior: null,
   };
   state.nodes.push(node);
   initializeCpt(node);
   state.selectedNodeId = id;
-  state.selectedEdgeId = null;
+  state.selectedEdgeIds.clear();
   state.highlightedNodeIds = new Set([id]);
   runInference(false);
   render();
@@ -150,8 +160,7 @@ function heuristicDistribution(node, parents, parentValues) {
     for (let i = 0; i < parents.length; i += 1) {
       const parent = parents[i];
       const value = parentValues[i];
-      const active = value === parent.states[0];
-      if (!active) continue;
+      if (value !== parent.states[0]) continue;
       if (node.type === 'evidence' && parent.type === 'evidence') p += 0.12;
       if (node.type === 'hypothesis' && parent.type === 'hypothesis') p += 0.12;
       if (node.type === 'hypothesis' && parent.type === 'evidence') p += 0.16;
@@ -184,7 +193,6 @@ function render() {
 
 function renderNodes() {
   viewport.querySelectorAll('.node').forEach((el) => el.remove());
-
   state.nodes.forEach((node) => {
     const el = document.createElement('div');
     el.className = `node ${node.type}`;
@@ -194,29 +202,26 @@ function renderNodes() {
     el.style.left = `${node.x}px`;
     el.style.top = `${node.y}px`;
     el.style.background = nodeBackground(node);
-    el.innerHTML = `<div class="title">${escapeHtml(node.name)}</div><div class="sub">${node.type}</div>`;
+    el.innerHTML = `<div class="title">${escapeHtml(node.name)}</div><div class="sub">${node.type} · ${computeRole(node)}</div>`;
 
     el.addEventListener('mousedown', (event) => {
       event.stopPropagation();
       if (state.tool !== 'select') return;
 
-      if (event.shiftKey) {
-        toggleHighlight(node.id);
-      } else if (!state.highlightedNodeIds.has(node.id)) {
-        state.highlightedNodeIds = new Set([node.id]);
-      }
-      selectNode(node.id, false);
+      if (event.shiftKey) toggleHighlight(node.id);
+      else if (!state.highlightedNodeIds.has(node.id)) state.highlightedNodeIds = new Set([node.id]);
 
+      selectNode(node.id, false);
       const world = screenToWorld(event.clientX, event.clientY);
       const moveIds = state.highlightedNodeIds.size ? [...state.highlightedNodeIds] : [node.id];
       state.dragNode = {
-        moveIds,
         startWorld: world,
         starts: moveIds.map((id) => {
           const n = state.nodes.find((x) => x.id === id);
           return { id, x: n.x, y: n.y };
         }),
       };
+      renderNodes();
     });
 
     el.addEventListener('click', (event) => {
@@ -225,13 +230,11 @@ function renderNodes() {
         handleArrowToolNodeClick(node.id);
         return;
       }
-      if (event.shiftKey) {
-        toggleHighlight(node.id);
-      } else {
-        state.highlightedNodeIds = new Set([node.id]);
-      }
+      if (event.shiftKey) toggleHighlight(node.id);
+      else state.highlightedNodeIds = new Set([node.id]);
       selectNode(node.id, false);
-      renderNodes();
+      render();
+      updatePlainSummaryForCurrentSelection();
     });
 
     viewport.appendChild(el);
@@ -251,7 +254,6 @@ function nodeBackground(node) {
 
 function renderEdges() {
   edgeLayer.innerHTML = `<defs><marker id="arrowHead" markerWidth="14" markerHeight="14" refX="13" refY="7" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,14 L13,7 z" fill="#5f91db" /></marker></defs>`;
-
   state.edges.forEach((edge) => {
     const parent = state.nodes.find((n) => n.id === edge.parentId);
     const child = state.nodes.find((n) => n.id === edge.childId);
@@ -259,7 +261,7 @@ function renderEdges() {
 
     const geometry = edgeGeometry(parent, child, edge.bend || 0);
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    if (edge.id === state.selectedEdgeId) group.setAttribute('class', 'edge-selected');
+    if (state.selectedEdgeIds.has(edge.id)) group.setAttribute('class', 'edge-selected');
 
     const visible = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     visible.setAttribute('class', 'edge-visible');
@@ -271,14 +273,27 @@ function renderEdges() {
 
     hit.addEventListener('click', (event) => {
       event.stopPropagation();
-      selectEdge(edge.id);
+      if (event.shiftKey) {
+        if (state.selectedEdgeIds.has(edge.id)) state.selectedEdgeIds.delete(edge.id);
+        else state.selectedEdgeIds.add(edge.id);
+      } else {
+        state.selectedEdgeIds = new Set([edge.id]);
+      }
+      state.selectedNodeId = null;
+      renderEdges();
+      renderInspector();
+      updatePlainSummaryForCurrentSelection();
     });
 
     hit.addEventListener('mousedown', (event) => {
       if (state.tool !== 'select') return;
       event.stopPropagation();
-      selectEdge(edge.id);
-      state.dragEdge = { edgeId: edge.id, startY: event.clientY, startBend: edge.bend || 0 };
+      if (!event.shiftKey) state.selectedEdgeIds = new Set([edge.id]);
+      else if (!state.selectedEdgeIds.has(edge.id)) state.selectedEdgeIds.add(edge.id);
+      state.selectedNodeId = null;
+      state.dragEdge = { edgeIds: [...state.selectedEdgeIds], startY: event.clientY, starts: [...state.selectedEdgeIds].map((id) => ({ id, bend: (state.edges.find((e) => e.id === id)?.bend) || 0 })) };
+      renderEdges();
+      renderInspector();
     });
 
     group.appendChild(visible);
@@ -299,7 +314,6 @@ function edgeGeometry(parent, child, bend) {
   const ny = dx / len;
   const controlX = midX + nx * bend;
   const controlY = midY + ny * bend;
-
   return { path: `M ${start.x} ${start.y} Q ${controlX} ${controlY} ${end.x} ${end.y}` };
 }
 
@@ -371,21 +385,22 @@ function onMouseMove(event) {
     const world = screenToWorld(event.clientX, event.clientY);
     const dx = world.x - state.dragNode.startWorld.x;
     const dy = world.y - state.dragNode.startWorld.y;
-    state.dragNode.starts.forEach((n) => {
-      const node = state.nodes.find((x) => x.id === n.id);
+    state.dragNode.starts.forEach((s) => {
+      const node = state.nodes.find((x) => x.id === s.id);
       if (!node) return;
-      node.x = n.x + dx;
-      node.y = n.y + dy;
+      node.x = s.x + dx;
+      node.y = s.y + dy;
     });
     render();
     return;
   }
 
   if (state.dragEdge) {
-    const edge = state.edges.find((e) => e.id === state.dragEdge.edgeId);
-    if (!edge) return;
     const delta = (event.clientY - state.dragEdge.startY) / Math.max(0.6, state.zoom);
-    edge.bend = Math.max(-240, Math.min(240, state.dragEdge.startBend + delta));
+    state.dragEdge.starts.forEach((s) => {
+      const edge = state.edges.find((e) => e.id === s.id);
+      if (edge) edge.bend = Math.max(-240, Math.min(240, s.bend + delta));
+    });
     renderEdges();
     return;
   }
@@ -415,11 +430,13 @@ function toggleHighlight(nodeId) {
 function highlightAllNodes() {
   state.highlightedNodeIds = new Set(state.nodes.map((n) => n.id));
   renderNodes();
+  updatePlainSummaryForCurrentSelection();
 }
 
 function clearHighlights() {
   state.highlightedNodeIds.clear();
   renderNodes();
+  updatePlainSummaryForCurrentSelection();
 }
 
 function handleArrowToolNodeClick(nodeId) {
@@ -428,7 +445,6 @@ function handleArrowToolNodeClick(nodeId) {
     renderNodes();
     return;
   }
-
   const parentId = state.pendingArrowSourceId;
   state.pendingArrowSourceId = null;
   if (parentId === nodeId) return renderNodes();
@@ -443,40 +459,41 @@ function handleArrowToolNodeClick(nodeId) {
 
   const child = state.nodes.find((n) => n.id === nodeId);
   if (child) initializeCpt(child);
-
   runInference(false);
-  selectEdge(edge.id);
+  state.selectedEdgeIds = new Set([edge.id]);
+  state.selectedNodeId = null;
   render();
+  updatePlainSummaryForCurrentSelection();
 }
 
 function selectNode(id, rerender = true) {
   state.selectedNodeId = id;
-  state.selectedEdgeId = null;
+  state.selectedEdgeIds.clear();
   if (rerender) render();
-}
-
-function selectEdge(id) {
-  state.selectedEdgeId = id;
-  state.selectedNodeId = null;
-  renderInspector();
-  renderEdges();
 }
 
 function clearSelection() {
   state.selectedNodeId = null;
-  state.selectedEdgeId = null;
+  state.selectedEdgeIds.clear();
   renderInspector();
   render();
+  updatePlainSummaryForCurrentSelection();
 }
 
 function getSelectedNode() {
   return state.nodes.find((n) => n.id === state.selectedNodeId) || null;
 }
 
+function computeRole(node) {
+  const hasParents = state.edges.some((e) => e.childId === node.id);
+  const hasChildren = state.edges.some((e) => e.parentId === node.id);
+  if (hasParents && hasChildren) return 'evidence/hypothesis';
+  return node.type;
+}
+
 function renderInspector() {
   const node = getSelectedNode();
-  const edgeSelected = state.edges.some((e) => e.id === state.selectedEdgeId);
-
+  const edgeSelected = state.selectedEdgeIds.size > 0;
   if (!node && !edgeSelected) {
     inspector.classList.add('hidden');
     emptySelection.classList.remove('hidden');
@@ -486,16 +503,33 @@ function renderInspector() {
   inspector.classList.remove('hidden');
   emptySelection.classList.add('hidden');
   nodeInspector.classList.toggle('hidden', !node);
-  edgeInspector.classList.toggle('hidden', !edgeSelected);
+  edgeInspector.classList.toggle('hidden', !edgeSelected || !!node);
 
   if (node) {
     nodeNameInput.value = node.name;
     nodeTypeInput.value = node.type;
+    nodeRoleInput.value = computeRole(node);
     evidenceSelect.innerHTML = `<option value="__none__">(none)</option>${node.states.map((s) => `<option>${escapeHtml(s)}</option>`).join('')}`;
     evidenceSelect.value = node.evidence || '__none__';
+
+    probabilityStateSelect.innerHTML = node.states.map((s, i) => `<option value="${i}">${escapeHtml(s)}</option>`).join('');
+    probabilityStateSelect.value = '0';
+    updateProbabilityReadout();
+
     renderStatePills(node);
     renderCptEditor(node);
   }
+}
+
+function updateProbabilityReadout() {
+  const node = getSelectedNode();
+  if (!node || !node.posterior) {
+    probabilityValue.textContent = '--';
+    return;
+  }
+  const idx = Number(probabilityStateSelect.value || 0);
+  const p = node.posterior[idx] ?? 0;
+  probabilityValue.textContent = `${(p * 100).toFixed(2)}%`;
 }
 
 function renderStatePills(node) {
@@ -539,14 +573,11 @@ function normalizeNodeAfterStateChange(node) {
 function renderCptEditor(node) {
   const combos = parentCombinations(getParents(node.id));
   cptContainer.innerHTML = '';
-
   combos.forEach((combo) => {
     const row = document.createElement('div');
     row.className = 'cpt-row';
-
     const label = document.createElement('span');
     label.textContent = combo.label || '(no parents)';
-
     const input = document.createElement('input');
     input.value = (node.cpt[combo.key] || uniform(node.states.length)).join(', ');
     input.addEventListener('change', () => {
@@ -560,8 +591,8 @@ function renderCptEditor(node) {
       input.value = node.cpt[combo.key].join(', ');
       runInference(false);
       renderNodes();
+      updateProbabilityReadout();
     });
-
     row.appendChild(label);
     row.appendChild(input);
     cptContainer.appendChild(row);
@@ -577,49 +608,42 @@ function deleteSelected() {
     state.selectedNodeId = null;
     runInference(false);
     render();
+    updatePlainSummaryForCurrentSelection();
     return;
   }
 
-  if (state.selectedEdgeId) {
-    const deleting = state.selectedEdgeId;
-    const childId = state.edges.find((e) => e.id === deleting)?.childId;
-    state.edges = state.edges.filter((e) => e.id !== deleting);
-    state.selectedEdgeId = null;
-    if (childId) {
-      const child = state.nodes.find((n) => n.id === childId);
+  if (state.selectedEdgeIds.size) {
+    const removed = new Set(state.selectedEdgeIds);
+    const affectedChildren = [...removed]
+      .map((id) => state.edges.find((e) => e.id === id)?.childId)
+      .filter(Boolean);
+    state.edges = state.edges.filter((e) => !removed.has(e.id));
+    state.selectedEdgeIds.clear();
+    affectedChildren.forEach((id) => {
+      const child = state.nodes.find((n) => n.id === id);
       if (child) initializeCpt(child);
-    }
+    });
     runInference(false);
     render();
+    updatePlainSummaryForCurrentSelection();
   }
 }
 
 function getParents(nodeId) {
-  return state.edges
-    .filter((e) => e.childId === nodeId)
-    .map((e) => state.nodes.find((n) => n.id === e.parentId))
-    .filter(Boolean);
+  return state.edges.filter((e) => e.childId === nodeId).map((e) => state.nodes.find((n) => n.id === e.parentId)).filter(Boolean);
 }
 
 function parentCombinations(parents) {
   if (!parents.length) return [{ key: '__root__', values: [], label: '' }];
   const combos = [];
-
   function build(idx, vals, labels) {
-    if (idx >= parents.length) {
-      combos.push({ key: vals.join('|'), values: [...vals], label: labels.join(', ') });
-      return;
-    }
-
+    if (idx >= parents.length) return combos.push({ key: vals.join('|'), values: [...vals], label: labels.join(', ') });
     parents[idx].states.forEach((s) => {
-      vals.push(s);
-      labels.push(`${parents[idx].name}=${s}`);
+      vals.push(s); labels.push(`${parents[idx].name}=${s}`);
       build(idx + 1, vals, labels);
-      vals.pop();
-      labels.pop();
+      vals.pop(); labels.pop();
     });
   }
-
   build(0, [], []);
   return combos;
 }
@@ -627,22 +651,17 @@ function parentCombinations(parents) {
 function createsCycle() {
   const children = new Map(state.nodes.map((n) => [n.id, []]));
   state.edges.forEach((e) => children.get(e.parentId)?.push(e.childId));
-
   const visiting = new Set();
   const visited = new Set();
-
   function dfs(id) {
     if (visiting.has(id)) return true;
     if (visited.has(id)) return false;
     visiting.add(id);
-    for (const c of children.get(id) || []) {
-      if (dfs(c)) return true;
-    }
+    for (const c of children.get(id) || []) if (dfs(c)) return true;
     visiting.delete(id);
     visited.add(id);
     return false;
   }
-
   return state.nodes.some((n) => dfs(n.id));
 }
 
@@ -666,10 +685,7 @@ function runInference(showOutputs) {
   }
 
   const hypotheses = state.nodes.filter((n) => n.type === 'hypothesis');
-  const rows = [];
-  const summary = [];
-
-  state.nodes.forEach((n) => { n.heatProb = null; });
+  state.nodes.forEach((n) => { n.heatProb = null; n.posterior = null; });
 
   state.nodes.filter((n) => n.states.length === 2).forEach((node) => {
     const p = enumeratePosterior(node, node.states[0], ordered);
@@ -681,20 +697,39 @@ function runInference(showOutputs) {
   hypotheses.forEach((node) => {
     const probs = node.states.map((s) => enumeratePosterior(node, s, ordered));
     const z = probs.reduce((a, b) => a + b, 0) || 1;
-    const norm = probs.map((v) => v / z);
-    rows.push(`<div><strong>${escapeHtml(node.name)}</strong><br/>${node.states.map((s, i) => `${escapeHtml(s)}: ${(norm[i] * 100).toFixed(2)}%`).join(' | ')}</div><hr/>`);
-
-    const best = norm.reduce((bi, p, i, arr) => (p > arr[bi] ? i : bi), 0);
-    const parents = getParents(node.id).filter((p) => p.type === 'evidence').map((p) => p.name);
-    summary.push(`The probability of ${node.name} being ${node.states[best]} given ${parents.length ? parents.join(' and ') : 'available evidence'} is ${(norm[best] * 100).toFixed(2)}%.`);
+    node.posterior = probs.map((v) => v / z);
   });
 
-  if (showOutputs) {
-    inferenceOutput.innerHTML = rows.join('') || 'No hypothesis nodes available.';
-    summaryOutput.innerHTML = summary.map((s) => `<div>${escapeHtml(s)}</div>`).join('');
-  }
+  const lines = hypotheses.map((n) => `<div><strong>${escapeHtml(n.name)}</strong><br/>${n.states.map((s, i) => `${escapeHtml(s)}: ${((n.posterior?.[i] || 0) * 100).toFixed(2)}%`).join(' | ')}</div><hr/>`);
+  if (showOutputs) inferenceOutput.innerHTML = lines.join('') || 'No hypothesis nodes available.';
 
+  updatePlainSummaryForCurrentSelection(showOutputs);
   renderNodes();
+  updateProbabilityReadout();
+}
+
+function updatePlainSummaryForCurrentSelection(forceUpdateOutput = true) {
+  const selectedNodeIds = new Set([...state.highlightedNodeIds]);
+  if (state.selectedNodeId) selectedNodeIds.add(state.selectedNodeId);
+
+  const selectedEdgeIds = new Set([...state.selectedEdgeIds]);
+  const selectedEdges = state.edges.filter((e) => selectedEdgeIds.has(e.id));
+  selectedEdges.forEach((e) => { selectedNodeIds.add(e.parentId); selectedNodeIds.add(e.childId); });
+
+  let scopeNodes = state.nodes;
+  if (selectedNodeIds.size || selectedEdgeIds.size) scopeNodes = state.nodes.filter((n) => selectedNodeIds.has(n.id));
+
+  const scopedHypotheses = scopeNodes.filter((n) => n.type === 'hypothesis');
+  const summary = scopedHypotheses.map((node) => {
+    if (!node.posterior) return null;
+    const best = node.posterior.reduce((bi, p, i, arr) => (p > arr[bi] ? i : bi), 0);
+    const parents = getParents(node.id).filter((p) => p.type === 'evidence').map((p) => p.name);
+    return `The probability of ${node.name} being ${node.states[best]} given ${parents.length ? parents.join(' and ') : 'available evidence'} is ${(node.posterior[best] * 100).toFixed(2)}%.`;
+  }).filter(Boolean);
+
+  if (forceUpdateOutput) {
+    summaryOutput.innerHTML = summary.length ? summary.map((s) => `<div>${escapeHtml(s)}</div>`).join('') : '<div>Select nodes/arrows to show network summary.</div>';
+  }
 }
 
 function enumeratePosterior(queryNode, queryState, ordered) {
@@ -717,18 +752,13 @@ function probGivenParents(node, stateName, evidence) {
   const parents = getParents(node.id);
   const key = parents.length ? parents.map((p) => evidence[p.id] || p.states[0]).join('|') : '__root__';
   const dist = node.cpt[key] || uniform(node.states.length);
-  const idx = node.states.indexOf(stateName);
-  return dist[idx] ?? 0;
+  return dist[node.states.indexOf(stateName)] ?? 0;
 }
 
 function topoOrder() {
   const indeg = new Map(state.nodes.map((n) => [n.id, 0]));
   const kids = new Map(state.nodes.map((n) => [n.id, []]));
-  state.edges.forEach((e) => {
-    indeg.set(e.childId, indeg.get(e.childId) + 1);
-    kids.get(e.parentId).push(e.childId);
-  });
-
+  state.edges.forEach((e) => { indeg.set(e.childId, indeg.get(e.childId) + 1); kids.get(e.parentId).push(e.childId); });
   const queue = state.nodes.filter((n) => indeg.get(n.id) === 0).map((n) => n.id);
   const out = [];
   while (queue.length) {
@@ -736,34 +766,26 @@ function topoOrder() {
     const node = state.nodes.find((n) => n.id === id);
     if (!node) continue;
     out.push(node);
-    (kids.get(id) || []).forEach((c) => {
-      indeg.set(c, indeg.get(c) - 1);
-      if (indeg.get(c) === 0) queue.push(c);
-    });
+    (kids.get(id) || []).forEach((c) => { indeg.set(c, indeg.get(c) - 1); if (indeg.get(c) === 0) queue.push(c); });
   }
   return out.length === state.nodes.length ? out : null;
 }
 
 function setupDropZone() {
   const dz = document.getElementById('dropZone');
-  ['dragenter', 'dragover'].forEach((name) => dz.addEventListener(name, (e) => {
-    e.preventDefault();
-    dz.classList.add('dragover');
-  }));
-  ['dragleave', 'drop'].forEach((name) => dz.addEventListener(name, (e) => {
-    e.preventDefault();
-    dz.classList.remove('dragover');
-  }));
+  ['dragenter', 'dragover'].forEach((name) => dz.addEventListener(name, (e) => { e.preventDefault(); dz.classList.add('dragover'); }));
+  ['dragleave', 'drop'].forEach((name) => dz.addEventListener(name, (e) => { e.preventDefault(); dz.classList.remove('dragover'); }));
   dz.addEventListener('drop', (e) => importFromFile(e.dataTransfer?.files?.[0]));
 }
 
 function saveModelObject() {
   return {
-    version: 6,
+    version: 7,
     nodes: state.nodes,
     edges: state.edges,
     pan: state.pan,
     zoom: state.zoom,
+    gridOn: canvasWrap.classList.contains('grid-on'),
   };
 }
 
@@ -807,25 +829,21 @@ function loadModelObject(model) {
       evidence: n.evidence || (type === 'evidence' ? states[0] : null),
       cpt: n.cpt && typeof n.cpt === 'object' ? n.cpt : {},
       heatProb: null,
+      posterior: null,
     };
   });
 
   const ids = new Set(state.nodes.map((n) => n.id));
-  state.edges = model.edges
-    .map((e) => ({
-      id: e.id || crypto.randomUUID(),
-      parentId: e.parentId,
-      childId: e.childId,
-      bend: Number.isFinite(e.bend) ? e.bend : 0,
-    }))
-    .filter((e) => ids.has(e.parentId) && ids.has(e.childId));
+  state.edges = model.edges.map((e) => ({ id: e.id || crypto.randomUUID(), parentId: e.parentId, childId: e.childId, bend: Number.isFinite(e.bend) ? e.bend : 0 })).filter((e) => ids.has(e.parentId) && ids.has(e.childId));
 
   state.highlightedNodeIds.clear();
   state.selectedNodeId = null;
-  state.selectedEdgeId = null;
+  state.selectedEdgeIds.clear();
   state.pendingArrowSourceId = null;
   state.pan = model.pan && Number.isFinite(model.pan.x) && Number.isFinite(model.pan.y) ? model.pan : { x: 0, y: 0 };
   state.zoom = Number.isFinite(model.zoom) ? Math.max(0.35, Math.min(2.6, model.zoom)) : 1;
+  document.getElementById('gridToggle').checked = !!model.gridOn;
+  canvasWrap.classList.toggle('grid-on', !!model.gridOn);
   applyViewportTransform();
   runInference(false);
   render();
@@ -857,4 +875,5 @@ function escapeHtml(text) {
 setupEvents();
 setTool('select');
 applyViewportTransform();
+runInference(false);
 render();

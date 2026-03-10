@@ -1,29 +1,28 @@
 # Bayesian-Network-Program
 
-A browser-based Bayesian Network editor with improved node/arrow ergonomics and automatic evidence assumptions.
+A browser-based Bayesian Network editor with automatic evidence assumptions and easier multi-selection workflows.
 
 ## Latest behavior updates
 
-- **Automatic evidence assumption**
-  - Evidence nodes default to `Present` and are treated as true/present during inference if not manually changed.
-- **Automatic green↔red coloring**
-  - Heat coloring now updates automatically from inferred probabilities (no separate apply button).
-- **Type-specific defaults**
-  - Hypothesis defaults to `True/False`.
-  - Evidence defaults to `Present/Absent`.
-- **Influence-aware CPT initialization**
-  - Parent links now initialize binary CPTs with positive influence so added evidence/hypothesis parents raise the first state probability.
-- **Arrow manipulation improvements**
-  - Larger arrow hit targets.
-  - Manual arrow bending by dragging the arrow directly.
-  - Delete selected node/arrow with Backspace/Delete.
-- **Multi-node highlight move**
-  - Shift+Click nodes to highlight.
-  - `Highlight All Nodes` to select all.
-  - Drag one highlighted node to move all highlighted nodes together.
+- Clicking empty canvas now automatically switches back to **Select** tool.
+- Removed UI hue selector; kept node brightness only.
+- Renamed left panel section from **Persistence** to **File**.
+- Added **Light Grid** toggle for the canvas background.
+- Multi-select support for nodes and arrows:
+  - Shift+click multiple nodes/arrows.
+  - Highlight all nodes quickly.
+  - Move highlighted nodes together.
+  - Summary panel reflects selected subnetwork when there is a selection.
+- Added role detection showing `evidence/hypothesis` when a node is both upstream and downstream.
+- Added **Probability of [state]** selector in inspector so you can inspect one selected state directly.
+- Evidence nodes are assumed true/present by default in inference.
+- Hypothesis defaults to `True/False`; Evidence defaults to `Present/Absent`.
 
-## Persistence
-- Save JSON, open JSON, drag/drop JSON, and quick save/load in localStorage.
+## File
+- Save JSON
+- Open JSON
+- Drag/drop JSON
+- Quick save/load in localStorage
 
 ## Run
 ```bash
