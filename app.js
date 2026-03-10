@@ -120,13 +120,25 @@ function defaultStatesByType(type) {
   return type === 'hypothesis' ? ['True', 'False'] : ['Present', 'Absent'];
 }
 
+function nextNodeNumber(type) {
+  const prefix = type === 'evidence' ? 'Evidence ' : 'Hypothesis ';
+  let maxNum = 0;
+  state.nodes.forEach((n) => {
+    if (n.type !== type) return;
+    if (!n.name.startsWith(prefix)) return;
+    const num = Number(n.name.slice(prefix.length));
+    if (Number.isFinite(num)) maxNum = Math.max(maxNum, num);
+  });
+  return maxNum + 1;
+}
+
 function addNode(type) {
   const id = crypto.randomUUID();
   const states = defaultStatesByType(type);
   const node = {
     id,
     type,
-    name: `${type === 'evidence' ? 'Evidence' : 'Hypothesis'} ${state.nodes.length + 1}`,
+    name: `${type === 'evidence' ? 'Evidence' : 'Hypothesis'} ${nextNodeNumber(type)}`,
     x: 100 + Math.random() * 300,
     y: 100 + Math.random() * 220,
     states,
@@ -324,18 +336,16 @@ function anchorPoint(fromNode, toNode, isSource) {
   const dy = centerTo.y - centerFrom.y;
 
   const candidates = [
+    // Four corners
+    { x: fromNode.x, y: fromNode.y },
+    { x: fromNode.x + NODE_WIDTH, y: fromNode.y },
+    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT },
+    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT },
+    // Center of each side
     { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y },
     { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y + NODE_HEIGHT },
     { x: fromNode.x, y: fromNode.y + NODE_HEIGHT / 2 },
     { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT / 2 },
-    { x: fromNode.x + NODE_WIDTH * 0.25, y: fromNode.y },
-    { x: fromNode.x + NODE_WIDTH * 0.75, y: fromNode.y },
-    { x: fromNode.x + NODE_WIDTH * 0.25, y: fromNode.y + NODE_HEIGHT },
-    { x: fromNode.x + NODE_WIDTH * 0.75, y: fromNode.y + NODE_HEIGHT },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT * 0.25 },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT * 0.75 },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT * 0.25 },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT * 0.75 },
   ];
 
   let best = candidates[0];
