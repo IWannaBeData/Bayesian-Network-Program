@@ -6,6 +6,7 @@ const state = {
   edges: [],
   selectedNodeId: null,
   selectedEdgeId: null,
+  highlightedNodeIds: new Set(),
   tool: 'select',
   pendingArrowSourceId: null,
   dragNode: null,
@@ -14,7 +15,6 @@ const state = {
   zoom: 1,
   panningCanvas: null,
   nodeLight: 48,
-  heatEnabled: false,
 };
 
 const canvas = document.getElementById('canvas');
@@ -39,6 +39,8 @@ function setupEvents() {
   document.getElementById('drawArrowToolBtn').addEventListener('click', () => setTool('drawArrow'));
   document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelected);
   document.getElementById('resetViewBtn').addEventListener('click', resetView);
+  document.getElementById('highlightAllBtn').addEventListener('click', highlightAllNodes);
+  document.getElementById('clearHighlightBtn').addEventListener('click', clearHighlights);
 
   nodeNameInput.addEventListener('input', () => {
     const node = getSelectedNode();
@@ -52,6 +54,8 @@ function setupEvents() {
     const node = getSelectedNode();
     if (!node) return;
     node.evidence = evidenceSelect.value === '__none__' ? null : evidenceSelect.value;
+    runInference(false);
+    renderNodes();
   });
 
   newStateInput.addEventListener('keydown', (event) => {
@@ -68,11 +72,6 @@ function setupEvents() {
   });
   document.getElementById('nodeLightInput').addEventListener('input', (event) => {
     state.nodeLight = Number(event.target.value);
-    renderNodes();
-  });
-  document.getElementById('applyHeatBtn').addEventListener('click', () => {
-    state.heatEnabled = true;
-    runInference(false);
     renderNodes();
   });
 
@@ -99,13 +98,73 @@ function setupEvents() {
   });
 
   window.addEventListener('keydown', (event) => {
-    if (event.key !== 'Backspace') return;
+    if (event.key !== 'Backspace' && event.key !== 'Delete') return;
     const tag = event.target?.tagName?.toLowerCase();
     const typing = tag === 'input' || tag === 'textarea' || event.target?.isContentEditable;
     if (typing) return;
     event.preventDefault();
     deleteSelected();
   });
+}
+
+function defaultStatesByType(type) {
+  return type === 'hypothesis' ? ['True', 'False'] : ['Present', 'Absent'];
+}
+
+function addNode(type) {
+  const id = crypto.randomUUID();
+  const states = defaultStatesByType(type);
+  const node = {
+    id,
+    type,
+    name: `${type === 'evidence' ? 'Evidence' : 'Hypothesis'} ${state.nodes.length + 1}`,
+    x: 100 + Math.random() * 300,
+    y: 100 + Math.random() * 220,
+    states,
+    evidence: type === 'evidence' ? states[0] : null,
+    cpt: {},
+    heatProb: null,
+  };
+  state.nodes.push(node);
+  initializeCpt(node);
+  state.selectedNodeId = id;
+  state.selectedEdgeId = null;
+  state.highlightedNodeIds = new Set([id]);
+  runInference(false);
+  render();
+}
+
+function initializeCpt(node) {
+  const parents = getParents(node.id);
+  const combos = parentCombinations(parents);
+  node.cpt = {};
+  combos.forEach((combo) => {
+    node.cpt[combo.key] = heuristicDistribution(node, parents, combo.values);
+  });
+}
+
+function heuristicDistribution(node, parents, parentValues) {
+  const n = node.states.length;
+  if (n === 2) {
+    let p = 0.5;
+    for (let i = 0; i < parents.length; i += 1) {
+      const parent = parents[i];
+      const value = parentValues[i];
+      const active = value === parent.states[0];
+      if (!active) continue;
+      if (node.type === 'evidence' && parent.type === 'evidence') p += 0.12;
+      if (node.type === 'hypothesis' && parent.type === 'hypothesis') p += 0.12;
+      if (node.type === 'hypothesis' && parent.type === 'evidence') p += 0.16;
+      if (node.type === 'evidence' && parent.type === 'hypothesis') p += 0.08;
+    }
+    p = Math.max(0.03, Math.min(0.97, p));
+    return [Number(p.toFixed(4)), Number((1 - p).toFixed(4))];
+  }
+  return uniform(n);
+}
+
+function uniform(len) {
+  return Array.from({ length: len }, () => Number((1 / len).toFixed(4)));
 }
 
 function setTool(tool) {
@@ -115,38 +174,6 @@ function setTool(tool) {
   document.getElementById('drawArrowToolBtn').classList.toggle('active-tool', tool === 'drawArrow');
   document.getElementById('drawHint').classList.toggle('hidden', tool !== 'drawArrow');
   renderNodes();
-}
-
-function addNode(type) {
-  const id = crypto.randomUUID();
-  const states = type === 'hypothesis' ? ['True', 'False'] : ['Present', 'Absent'];
-  state.nodes.push({
-    id,
-    type,
-    name: `${type === 'evidence' ? 'Evidence' : 'Hypothesis'} ${state.nodes.length + 1}`,
-    x: 100 + Math.random() * 300,
-    y: 100 + Math.random() * 220,
-    states,
-    evidence: null,
-    cpt: {},
-    heatProb: null,
-  });
-  initializeCpt(state.nodes[state.nodes.length - 1]);
-  state.selectedNodeId = id;
-  state.selectedEdgeId = null;
-  render();
-}
-
-function initializeCpt(node) {
-  const combos = parentCombinations(getParents(node.id));
-  node.cpt = {};
-  combos.forEach((combo) => {
-    node.cpt[combo.key] = uniform(node.states.length);
-  });
-}
-
-function uniform(len) {
-  return Array.from({ length: len }, () => Number((1 / len).toFixed(4)));
 }
 
 function render() {
@@ -162,6 +189,7 @@ function renderNodes() {
     const el = document.createElement('div');
     el.className = `node ${node.type}`;
     if (node.id === state.selectedNodeId) el.classList.add('selected');
+    if (state.highlightedNodeIds.has(node.id)) el.classList.add('highlighted');
     if (node.id === state.pendingArrowSourceId) el.classList.add('arrow-source');
     el.style.left = `${node.x}px`;
     el.style.top = `${node.y}px`;
@@ -171,9 +199,24 @@ function renderNodes() {
     el.addEventListener('mousedown', (event) => {
       event.stopPropagation();
       if (state.tool !== 'select') return;
-      selectNode(node.id);
+
+      if (event.shiftKey) {
+        toggleHighlight(node.id);
+      } else if (!state.highlightedNodeIds.has(node.id)) {
+        state.highlightedNodeIds = new Set([node.id]);
+      }
+      selectNode(node.id, false);
+
       const world = screenToWorld(event.clientX, event.clientY);
-      state.dragNode = { id: node.id, offsetX: world.x - node.x, offsetY: world.y - node.y };
+      const moveIds = state.highlightedNodeIds.size ? [...state.highlightedNodeIds] : [node.id];
+      state.dragNode = {
+        moveIds,
+        startWorld: world,
+        starts: moveIds.map((id) => {
+          const n = state.nodes.find((x) => x.id === id);
+          return { id, x: n.x, y: n.y };
+        }),
+      };
     });
 
     el.addEventListener('click', (event) => {
@@ -182,7 +225,13 @@ function renderNodes() {
         handleArrowToolNodeClick(node.id);
         return;
       }
-      selectNode(node.id);
+      if (event.shiftKey) {
+        toggleHighlight(node.id);
+      } else {
+        state.highlightedNodeIds = new Set([node.id]);
+      }
+      selectNode(node.id, false);
+      renderNodes();
     });
 
     viewport.appendChild(el);
@@ -190,7 +239,7 @@ function renderNodes() {
 }
 
 function nodeBackground(node) {
-  if (state.heatEnabled && node.states.length === 2 && Number.isFinite(node.heatProb)) {
+  if (node.states.length === 2 && Number.isFinite(node.heatProb)) {
     const hue = Math.round(120 * node.heatProb);
     const light = state.nodeLight;
     return `linear-gradient(140deg, hsl(${hue},85%,${Math.min(light + 12, 78)}%), hsl(${hue},78%,${light}%))`;
@@ -251,9 +300,7 @@ function edgeGeometry(parent, child, bend) {
   const controlX = midX + nx * bend;
   const controlY = midY + ny * bend;
 
-  return {
-    path: `M ${start.x} ${start.y} Q ${controlX} ${controlY} ${end.x} ${end.y}`,
-  };
+  return { path: `M ${start.x} ${start.y} Q ${controlX} ${controlY} ${end.x} ${end.y}` };
 }
 
 function anchorPoint(fromNode, toNode, isSource) {
@@ -263,18 +310,18 @@ function anchorPoint(fromNode, toNode, isSource) {
   const dy = centerTo.y - centerFrom.y;
 
   const candidates = [
-    { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y, side: 'top' },
-    { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y + NODE_HEIGHT, side: 'bottom' },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT / 2, side: 'left' },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT / 2, side: 'right' },
-    { x: fromNode.x + NODE_WIDTH * 0.25, y: fromNode.y, side: 'top' },
-    { x: fromNode.x + NODE_WIDTH * 0.75, y: fromNode.y, side: 'top' },
-    { x: fromNode.x + NODE_WIDTH * 0.25, y: fromNode.y + NODE_HEIGHT, side: 'bottom' },
-    { x: fromNode.x + NODE_WIDTH * 0.75, y: fromNode.y + NODE_HEIGHT, side: 'bottom' },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT * 0.25, side: 'left' },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT * 0.75, side: 'left' },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT * 0.25, side: 'right' },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT * 0.75, side: 'right' },
+    { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y },
+    { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y + NODE_HEIGHT },
+    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT / 2 },
+    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT / 2 },
+    { x: fromNode.x + NODE_WIDTH * 0.25, y: fromNode.y },
+    { x: fromNode.x + NODE_WIDTH * 0.75, y: fromNode.y },
+    { x: fromNode.x + NODE_WIDTH * 0.25, y: fromNode.y + NODE_HEIGHT },
+    { x: fromNode.x + NODE_WIDTH * 0.75, y: fromNode.y + NODE_HEIGHT },
+    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT * 0.25 },
+    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT * 0.75 },
+    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT * 0.25 },
+    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT * 0.75 },
   ];
 
   let best = candidates[0];
@@ -321,11 +368,15 @@ function onCanvasMouseDown(event) {
 
 function onMouseMove(event) {
   if (state.dragNode) {
-    const node = state.nodes.find((n) => n.id === state.dragNode.id);
-    if (!node) return;
     const world = screenToWorld(event.clientX, event.clientY);
-    node.x = world.x - state.dragNode.offsetX;
-    node.y = world.y - state.dragNode.offsetY;
+    const dx = world.x - state.dragNode.startWorld.x;
+    const dy = world.y - state.dragNode.startWorld.y;
+    state.dragNode.starts.forEach((n) => {
+      const node = state.nodes.find((x) => x.id === n.id);
+      if (!node) return;
+      node.x = n.x + dx;
+      node.y = n.y + dy;
+    });
     render();
     return;
   }
@@ -356,6 +407,21 @@ function resetView() {
   applyViewportTransform();
 }
 
+function toggleHighlight(nodeId) {
+  if (state.highlightedNodeIds.has(nodeId)) state.highlightedNodeIds.delete(nodeId);
+  else state.highlightedNodeIds.add(nodeId);
+}
+
+function highlightAllNodes() {
+  state.highlightedNodeIds = new Set(state.nodes.map((n) => n.id));
+  renderNodes();
+}
+
+function clearHighlights() {
+  state.highlightedNodeIds.clear();
+  renderNodes();
+}
+
 function handleArrowToolNodeClick(nodeId) {
   if (!state.pendingArrowSourceId) {
     state.pendingArrowSourceId = nodeId;
@@ -365,37 +431,28 @@ function handleArrowToolNodeClick(nodeId) {
 
   const parentId = state.pendingArrowSourceId;
   state.pendingArrowSourceId = null;
-
-  if (parentId === nodeId) {
-    renderNodes();
-    return;
-  }
-
-  if (state.edges.some((e) => e.parentId === parentId && e.childId === nodeId)) {
-    renderNodes();
-    return;
-  }
+  if (parentId === nodeId) return renderNodes();
+  if (state.edges.some((e) => e.parentId === parentId && e.childId === nodeId)) return renderNodes();
 
   const edge = { id: crypto.randomUUID(), parentId, childId: nodeId, bend: 0 };
   state.edges.push(edge);
-
   if (createsCycle()) {
     state.edges.pop();
-    renderNodes();
-    return;
+    return renderNodes();
   }
 
   const child = state.nodes.find((n) => n.id === nodeId);
   if (child) initializeCpt(child);
 
+  runInference(false);
   selectEdge(edge.id);
   render();
 }
 
-function selectNode(id) {
+function selectNode(id, rerender = true) {
   state.selectedNodeId = id;
   state.selectedEdgeId = null;
-  render();
+  if (rerender) render();
 }
 
 function selectEdge(id) {
@@ -416,15 +473,11 @@ function getSelectedNode() {
   return state.nodes.find((n) => n.id === state.selectedNodeId) || null;
 }
 
-function getSelectedEdge() {
-  return state.edges.find((e) => e.id === state.selectedEdgeId) || null;
-}
-
 function renderInspector() {
   const node = getSelectedNode();
-  const edge = getSelectedEdge();
+  const edgeSelected = state.edges.some((e) => e.id === state.selectedEdgeId);
 
-  if (!node && !edge) {
+  if (!node && !edgeSelected) {
     inspector.classList.add('hidden');
     emptySelection.classList.remove('hidden');
     return;
@@ -433,7 +486,7 @@ function renderInspector() {
   inspector.classList.remove('hidden');
   emptySelection.classList.add('hidden');
   nodeInspector.classList.toggle('hidden', !node);
-  edgeInspector.classList.toggle('hidden', !edge);
+  edgeInspector.classList.toggle('hidden', !edgeSelected);
 
   if (node) {
     nodeNameInput.value = node.name;
@@ -479,6 +532,7 @@ function removeState(index) {
 function normalizeNodeAfterStateChange(node) {
   if (node.evidence && !node.states.includes(node.evidence)) node.evidence = null;
   initializeCpt(node);
+  runInference(false);
   render();
 }
 
@@ -504,6 +558,8 @@ function renderCptEditor(node) {
       const sum = arr.reduce((a, b) => a + b, 0) || 1;
       node.cpt[combo.key] = arr.map((v) => Number((v / sum).toFixed(4)));
       input.value = node.cpt[combo.key].join(', ');
+      runInference(false);
+      renderNodes();
     });
 
     row.appendChild(label);
@@ -517,14 +573,23 @@ function deleteSelected() {
     const id = state.selectedNodeId;
     state.nodes = state.nodes.filter((n) => n.id !== id);
     state.edges = state.edges.filter((e) => e.parentId !== id && e.childId !== id);
+    state.highlightedNodeIds.delete(id);
     state.selectedNodeId = null;
+    runInference(false);
     render();
     return;
   }
 
   if (state.selectedEdgeId) {
-    state.edges = state.edges.filter((e) => e.id !== state.selectedEdgeId);
+    const deleting = state.selectedEdgeId;
+    const childId = state.edges.find((e) => e.id === deleting)?.childId;
+    state.edges = state.edges.filter((e) => e.id !== deleting);
     state.selectedEdgeId = null;
+    if (childId) {
+      const child = state.nodes.find((n) => n.id === childId);
+      if (child) initializeCpt(child);
+    }
+    runInference(false);
     render();
   }
 }
@@ -581,6 +646,15 @@ function createsCycle() {
   return state.nodes.some((n) => dfs(n.id));
 }
 
+function effectiveEvidenceAssignments() {
+  const out = {};
+  state.nodes.forEach((n) => {
+    if (n.evidence) out[n.id] = n.evidence;
+    else if (n.type === 'evidence') out[n.id] = n.states[0];
+  });
+  return out;
+}
+
 function runInference(showOutputs) {
   const ordered = topoOrder();
   if (!ordered) {
@@ -595,9 +669,7 @@ function runInference(showOutputs) {
   const rows = [];
   const summary = [];
 
-  state.nodes.forEach((n) => {
-    n.heatProb = null;
-  });
+  state.nodes.forEach((n) => { n.heatProb = null; });
 
   state.nodes.filter((n) => n.states.length === 2).forEach((node) => {
     const p = enumeratePosterior(node, node.states[0], ordered);
@@ -622,14 +694,11 @@ function runInference(showOutputs) {
     summaryOutput.innerHTML = summary.map((s) => `<div>${escapeHtml(s)}</div>`).join('');
   }
 
-  if (state.heatEnabled) renderNodes();
+  renderNodes();
 }
 
 function enumeratePosterior(queryNode, queryState, ordered) {
-  const evidence = {};
-  state.nodes.forEach((n) => {
-    if (n.evidence) evidence[n.id] = n.evidence;
-  });
+  const evidence = effectiveEvidenceAssignments();
   evidence[queryNode.id] = queryState;
   return enumerateAll(ordered, evidence);
 }
@@ -672,7 +741,6 @@ function topoOrder() {
       if (indeg.get(c) === 0) queue.push(c);
     });
   }
-
   return out.length === state.nodes.length ? out : null;
 }
 
@@ -690,7 +758,13 @@ function setupDropZone() {
 }
 
 function saveModelObject() {
-  return { version: 5, nodes: state.nodes, edges: state.edges, pan: state.pan, zoom: state.zoom };
+  return {
+    version: 6,
+    nodes: state.nodes,
+    edges: state.edges,
+    pan: state.pan,
+    zoom: state.zoom,
+  };
 }
 
 function saveToFile() {
@@ -716,24 +790,21 @@ function importFromFile(file) {
   reader.readAsText(file);
 }
 
-function defaultStatesByType(type) {
-  return type === 'hypothesis' ? ['True', 'False'] : ['Present', 'Absent'];
-}
-
 function loadModelObject(model) {
   if (!model || !Array.isArray(model.nodes) || !Array.isArray(model.edges)) throw new Error('Invalid save format');
 
   state.nodes = model.nodes.map((n, i) => {
     const type = n.type === 'hypothesis' ? 'hypothesis' : 'evidence';
-    const fallbackStates = defaultStatesByType(type);
+    const fallback = defaultStatesByType(type);
+    const states = Array.isArray(n.states) && n.states.length > 1 ? n.states : fallback;
     return {
       id: n.id || crypto.randomUUID(),
       type,
       name: n.name || `Node ${i + 1}`,
       x: Number.isFinite(n.x) ? n.x : 90,
       y: Number.isFinite(n.y) ? n.y : 90,
-      states: Array.isArray(n.states) && n.states.length > 1 ? n.states : fallbackStates,
-      evidence: n.evidence || null,
+      states,
+      evidence: n.evidence || (type === 'evidence' ? states[0] : null),
       cpt: n.cpt && typeof n.cpt === 'object' ? n.cpt : {},
       heatProb: null,
     };
@@ -749,12 +820,14 @@ function loadModelObject(model) {
     }))
     .filter((e) => ids.has(e.parentId) && ids.has(e.childId));
 
+  state.highlightedNodeIds.clear();
   state.selectedNodeId = null;
   state.selectedEdgeId = null;
   state.pendingArrowSourceId = null;
   state.pan = model.pan && Number.isFinite(model.pan.x) && Number.isFinite(model.pan.y) ? model.pan : { x: 0, y: 0 };
   state.zoom = Number.isFinite(model.zoom) ? Math.max(0.35, Math.min(2.6, model.zoom)) : 1;
   applyViewportTransform();
+  runInference(false);
   render();
 }
 

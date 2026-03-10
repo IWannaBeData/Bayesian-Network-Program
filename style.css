@@ -65,7 +65,7 @@ input, select {
 .canvas.panning { cursor: grabbing; }
 .viewport { width: 100%; height: 100%; transform-origin: 0 0; position: relative; }
 
-#edgeLayer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+#edgeLayer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; z-index: 1; }
 .edge-visible { stroke: #5f91db; stroke-width: 3.2; fill: none; marker-end: url(#arrowHead); pointer-events: none; }
 .edge-hit {
   stroke: rgba(0,0,0,0);
@@ -87,8 +87,10 @@ input, select {
   user-select: none;
   cursor: move;
   background: linear-gradient(135deg, #d8f4f0, #cbe8ff);
+  z-index: 2;
 }
 .node.selected { outline: 2px solid #f39f1f; }
+.node.highlighted { outline: 2px dashed #00b37e; }
 .node.arrow-source { outline: 2px solid #1ecb8f; }
 .node .title { font-weight: 600; }
 .node .sub { font-size: .78rem; color: #44577a; }

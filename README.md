@@ -1,28 +1,29 @@
 # Bayesian-Network-Program
 
-A browser-based Bayesian Network editor with a brighter interface and easier graph manipulation.
+A browser-based Bayesian Network editor with improved node/arrow ergonomics and automatic evidence assumptions.
 
-## Latest UX fixes
+## Latest behavior updates
 
-- Arrows are now much easier to interact with:
-  - Larger invisible hit area for arrow selection.
-  - Drag arrow directly to bend manually (no bend slider/handle needed).
-- Added keyboard delete shortcut:
-  - Press **Backspace** to delete selected node or arrow.
-- Improved box connection behavior:
-  - More anchor points around each node edge for cleaner routing.
-- Node state defaults are now type-specific:
-  - **Hypothesis** defaults to `True` / `False`.
-  - **Evidence** defaults to `Present` / `Absent`.
-- Kept pan/zoom and color controls:
-  - Pan canvas, zoom with wheel, reset view.
-  - UI hue, node brightness, and green↔red probability coloring.
+- **Automatic evidence assumption**
+  - Evidence nodes default to `Present` and are treated as true/present during inference if not manually changed.
+- **Automatic green↔red coloring**
+  - Heat coloring now updates automatically from inferred probabilities (no separate apply button).
+- **Type-specific defaults**
+  - Hypothesis defaults to `True/False`.
+  - Evidence defaults to `Present/Absent`.
+- **Influence-aware CPT initialization**
+  - Parent links now initialize binary CPTs with positive influence so added evidence/hypothesis parents raise the first state probability.
+- **Arrow manipulation improvements**
+  - Larger arrow hit targets.
+  - Manual arrow bending by dragging the arrow directly.
+  - Delete selected node/arrow with Backspace/Delete.
+- **Multi-node highlight move**
+  - Shift+Click nodes to highlight.
+  - `Highlight All Nodes` to select all.
+  - Drag one highlighted node to move all highlighted nodes together.
 
 ## Persistence
-- Save model to JSON file.
-- Open JSON save file.
-- Drag/drop JSON save file.
-- Quick save/load in local storage.
+- Save JSON, open JSON, drag/drop JSON, and quick save/load in localStorage.
 
 ## Run
 ```bash

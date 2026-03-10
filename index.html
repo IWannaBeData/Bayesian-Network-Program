@@ -10,7 +10,7 @@
     <div class="app-shell">
       <header class="top-bar">
         <h1>Bayesian Network Studio</h1>
-        <p>Brighter editor with smoother pan/zoom, easier arrow editing, and probability-based node colors.</p>
+        <p>Brighter editor with smoother pan/zoom, easier arrow editing, and automatic probability colors.</p>
       </header>
 
       <div class="layout">
@@ -26,22 +26,22 @@
             <button id="selectToolBtn">🖱 Select</button>
             <button id="drawArrowToolBtn">✏️ Draw Arrow</button>
             <button id="deleteSelectedBtn">🗑 Delete Selected</button>
+            <button id="highlightAllBtn">✨ Highlight All Nodes</button>
+            <button id="clearHighlightBtn">Clear Highlights</button>
             <div id="drawHint" class="hint hidden">Draw arrow: click source node, then target node.</div>
-            <div class="hint">Tip: click + drag an arrow to bend it manually.</div>
-            <div class="hint">Press Backspace to delete selected node/arrow.</div>
+            <div class="hint">Tip: drag a selected arrow to bend. Backspace/Delete removes selected arrows/nodes.</div>
           </div>
 
           <h2>View</h2>
           <div class="button-stack">
             <button id="resetViewBtn">Reset Pan/Zoom</button>
-            <div class="hint">Mouse wheel zooms. Drag empty canvas to pan.</div>
+            <div class="hint">Wheel zooms. Drag empty canvas to pan. Shift+Click to highlight multiple nodes.</div>
           </div>
 
           <h2>Color Adjustor</h2>
           <div class="button-stack">
             <label>UI Hue <input id="uiHueInput" type="range" min="170" max="340" value="220" /></label>
             <label>Node Brightness <input id="nodeLightInput" type="range" min="30" max="72" value="48" /></label>
-            <button id="applyHeatBtn">Apply Green↔Red Node Gradient</button>
           </div>
 
           <h2>Persistence</h2>
