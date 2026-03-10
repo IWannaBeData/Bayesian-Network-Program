@@ -10,7 +10,7 @@
     <div class="app-shell">
       <header class="top-bar">
         <h1>Bayesian Network Studio</h1>
-        <p>Create Evidence/Hypothesis nodes, draw editable arrows, run inference, and manage save files.</p>
+        <p>Brighter editor with smoother pan/zoom, stable arrow drawing, and probability-based node colors.</p>
       </header>
 
       <div class="layout">
@@ -23,45 +23,57 @@
 
           <h2>Tools</h2>
           <div class="button-stack">
-            <button id="selectToolBtn">🖱 Select Tool</button>
-            <button id="drawArrowToolBtn">✏️ Draw Arrow Tool</button>
-            <button id="deleteSelectedBtn">🗑 Delete Selected Node/Arrow</button>
-            <div id="drawHint" class="hint hidden">Arrow tool: click source node, then target node.</div>
+            <button id="selectToolBtn">🖱 Select</button>
+            <button id="drawArrowToolBtn">✏️ Draw Arrow</button>
+            <button id="deleteSelectedBtn">🗑 Delete Selected</button>
+            <div id="drawHint" class="hint hidden">Draw arrow: click source node, then target node.</div>
+          </div>
+
+          <h2>View</h2>
+          <div class="button-stack">
+            <button id="resetViewBtn">Reset Pan/Zoom</button>
+            <div class="hint">Use mouse wheel to zoom, drag empty canvas to pan.</div>
+          </div>
+
+          <h2>Color Adjustor</h2>
+          <div class="button-stack">
+            <label>UI Hue <input id="uiHueInput" type="range" min="170" max="340" value="220" /></label>
+            <label>Node Brightness <input id="nodeLightInput" type="range" min="30" max="72" value="48" /></label>
+            <button id="applyHeatBtn">Apply Green↔Red Node Gradient</button>
           </div>
 
           <h2>Persistence</h2>
           <div class="button-stack">
-            <button id="saveFileBtn">⬇ Save to File</button>
+            <button id="saveFileBtn">⬇ Save</button>
             <button id="openFileBtn">📂 Open Save File</button>
             <input id="uploadInput" type="file" accept=".json,application/json" class="hidden" />
-            <div id="dropZone" class="drop-zone">Drop save file here (.json)</div>
-            <button id="quickSaveBtn">💾 Quick Save (local)</button>
-            <button id="quickLoadBtn">📥 Quick Load (local)</button>
+            <div id="dropZone" class="drop-zone">Drop .json save file here</div>
+            <button id="quickSaveBtn">💾 Quick Save</button>
+            <button id="quickLoadBtn">📥 Quick Load</button>
           </div>
         </aside>
 
-        <main class="canvas-wrap">
+        <main class="canvas-wrap" id="canvasWrap">
           <div id="canvas" class="canvas">
-            <svg id="edgeLayer"></svg>
+            <div id="viewport" class="viewport">
+              <svg id="edgeLayer"></svg>
+            </div>
           </div>
         </main>
 
         <aside class="panel right-panel">
           <h2>Inspector</h2>
-          <div id="emptySelection" class="hint">Select a node to edit details, or select an arrow to adjust its bend.</div>
+          <div id="emptySelection" class="hint">Select node or arrow.</div>
           <div id="inspector" class="inspector hidden">
             <div id="nodeInspector" class="hidden">
               <label>Name <input id="nodeName" type="text" /></label>
               <label>Type <input id="nodeType" type="text" disabled /></label>
-
-              <label>Evidence value
-                <select id="evidenceSelect"></select>
-              </label>
+              <label>Evidence value <select id="evidenceSelect"></select></label>
 
               <h3>States</h3>
               <div id="statePills" class="state-pills"></div>
               <div class="state-add-row">
-                <input id="newStateInput" type="text" placeholder="Add state (supports spaces)" />
+                <input id="newStateInput" type="text" placeholder="Add state (spaces allowed)" />
                 <button id="addStateBtn">Add</button>
               </div>
 
@@ -70,12 +82,7 @@
             </div>
 
             <div id="edgeInspector" class="hidden">
-              <label>Selected Arrow
-                <input id="edgeLabel" type="text" disabled value="Arrow selected" />
-              </label>
-              <label>Bend
-                <input id="edgeBendInput" type="range" min="-220" max="220" step="1" />
-              </label>
+              <label>Arrow Bend <input id="edgeBendInput" type="range" min="-220" max="220" step="1" /></label>
             </div>
           </div>
 
@@ -83,7 +90,7 @@
           <button id="runInferenceBtn">Run Exact Inference</button>
           <div id="inferenceOutput" class="inference-output"></div>
 
-          <h2>Plain Language Summary</h2>
+          <h2>Plain Summary</h2>
           <div id="summaryOutput" class="inference-output"></div>
         </aside>
       </div>
