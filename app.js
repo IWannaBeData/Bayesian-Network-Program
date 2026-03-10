@@ -11,6 +11,7 @@ const state = {
   pendingArrowSourceId: null,
   dragNode: null,
   dragEdge: null,
+  dragEdgeHead: null,
   pan: { x: 0, y: 0 },
   zoom: 1,
   panningCanvas: null,
@@ -98,6 +99,7 @@ function setupEvents() {
   window.addEventListener('mouseup', () => {
     state.dragNode = null;
     state.dragEdge = null;
+    state.dragEdgeHead = null;
     state.panningCanvas = null;
     canvas.classList.remove('panning');
   });
@@ -267,7 +269,7 @@ function renderEdges() {
     const child = state.nodes.find((n) => n.id === edge.childId);
     if (!parent || !child) return;
 
-    const geometry = edgeGeometry(parent, child, edge.bend || 0);
+    const geometry = edgeGeometry(parent, child, edge);
     const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     if (state.selectedEdgeIds.has(edge.id)) group.setAttribute('class', 'edge-selected');
 
@@ -307,12 +309,27 @@ function renderEdges() {
     group.appendChild(visible);
     group.appendChild(hit);
     edgeLayer.appendChild(group);
+
+    if (state.selectedEdgeIds.has(edge.id)) {
+      const headHandle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      headHandle.setAttribute('class', 'arrow-head-handle');
+      headHandle.setAttribute('cx', geometry.end.x);
+      headHandle.setAttribute('cy', geometry.end.y);
+      headHandle.setAttribute('r', '6');
+      headHandle.addEventListener('mousedown', (event) => {
+        if (state.tool !== 'select') return;
+        event.stopPropagation();
+        state.dragEdgeHead = { edgeId: edge.id };
+      });
+      edgeLayer.appendChild(headHandle);
+    }
   });
 }
 
-function edgeGeometry(parent, child, bend) {
-  const start = anchorPoint(parent, child, true);
-  const end = anchorPoint(child, parent, false);
+function edgeGeometry(parent, child, edge) {
+  const start = anchorPoint(parent, child, true, null);
+  const end = anchorPoint(child, parent, false, Number.isFinite(edge.endAnchorIndex) ? edge.endAnchorIndex : null);
+  const bend = edge.bend || 0;
   const midX = (start.x + end.x) / 2;
   const midY = (start.y + end.y) / 2;
   const dx = end.x - start.x;
@@ -322,31 +339,40 @@ function edgeGeometry(parent, child, bend) {
   const ny = dx / len;
   const controlX = midX + nx * bend;
   const controlY = midY + ny * bend;
-  return { path: `M ${start.x} ${start.y} Q ${controlX} ${controlY} ${end.x} ${end.y}` };
+  return { path: `M ${start.x} ${start.y} Q ${controlX} ${controlY} ${end.x} ${end.y}`, start, end };
 }
 
-function anchorPoint(fromNode, toNode, isSource) {
+function anchorCandidates(node) {
+  return [
+    // Four corners
+    { x: node.x, y: node.y },
+    { x: node.x + NODE_WIDTH, y: node.y },
+    { x: node.x, y: node.y + NODE_HEIGHT },
+    { x: node.x + NODE_WIDTH, y: node.y + NODE_HEIGHT },
+    // Center of each side
+    { x: node.x + NODE_WIDTH / 2, y: node.y },
+    { x: node.x + NODE_WIDTH / 2, y: node.y + NODE_HEIGHT },
+    { x: node.x, y: node.y + NODE_HEIGHT / 2 },
+    { x: node.x + NODE_WIDTH, y: node.y + NODE_HEIGHT / 2 },
+  ];
+}
+
+function anchorPoint(fromNode, toNode, isSource, forcedIndex = null) {
+  const candidates = anchorCandidates(fromNode);
+  if (Number.isFinite(forcedIndex) && forcedIndex >= 0 && forcedIndex < candidates.length) {
+    const c = candidates[forcedIndex];
+    return { x: c.x, y: c.y, index: forcedIndex };
+  }
+
   const centerFrom = { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y + NODE_HEIGHT / 2 };
   const centerTo = { x: toNode.x + NODE_WIDTH / 2, y: toNode.y + NODE_HEIGHT / 2 };
   const dx = centerTo.x - centerFrom.x;
   const dy = centerTo.y - centerFrom.y;
 
-  const candidates = [
-    // Four corners
-    { x: fromNode.x, y: fromNode.y },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT },
-    // Center of each side
-    { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y },
-    { x: fromNode.x + NODE_WIDTH / 2, y: fromNode.y + NODE_HEIGHT },
-    { x: fromNode.x, y: fromNode.y + NODE_HEIGHT / 2 },
-    { x: fromNode.x + NODE_WIDTH, y: fromNode.y + NODE_HEIGHT / 2 },
-  ];
-
   let best = candidates[0];
+  let bestIndex = 0;
   let bestScore = Infinity;
-  candidates.forEach((p) => {
+  candidates.forEach((p, idx) => {
     const vx = p.x - centerFrom.x;
     const vy = p.y - centerFrom.y;
     const outward = isSource ? (vx * dx + vy * dy) : (vx * -dx + vy * -dy);
@@ -355,10 +381,11 @@ function anchorPoint(fromNode, toNode, isSource) {
     if (score < bestScore) {
       bestScore = score;
       best = p;
+      bestIndex = idx;
     }
   });
 
-  return { x: best.x, y: best.y };
+  return { x: best.x, y: best.y, index: bestIndex };
 }
 
 function screenToWorld(clientX, clientY) {
@@ -399,6 +426,24 @@ function onMouseMove(event) {
       node.y = s.y + dy;
     });
     render();
+    return;
+  }
+
+  if (state.dragEdgeHead) {
+    const edge = state.edges.find((e) => e.id === state.dragEdgeHead.edgeId);
+    if (!edge) return;
+    const child = state.nodes.find((n) => n.id === edge.childId);
+    if (!child) return;
+    const world = screenToWorld(event.clientX, event.clientY);
+    const candidates = anchorCandidates(child);
+    let bestIdx = 0;
+    let bestDist = Infinity;
+    candidates.forEach((p, idx) => {
+      const d = Math.hypot(world.x - p.x, world.y - p.y);
+      if (d < bestDist) { bestDist = d; bestIdx = idx; }
+    });
+    edge.endAnchorIndex = bestIdx;
+    renderEdges();
     return;
   }
 
@@ -452,7 +497,7 @@ function handleArrowToolNodeClick(nodeId) {
   if (parentId === nodeId) return renderNodes();
   if (state.edges.some((e) => e.parentId === parentId && e.childId === nodeId)) return renderNodes();
 
-  const edge = { id: crypto.randomUUID(), parentId, childId: nodeId, bend: 0 };
+  const edge = { id: crypto.randomUUID(), parentId, childId: nodeId, bend: 0, endAnchorIndex: null };
   state.edges.push(edge);
   if (createsCycle()) {
     state.edges.pop();
@@ -836,7 +881,7 @@ function loadModelObject(model) {
   });
 
   const ids = new Set(state.nodes.map((n) => n.id));
-  state.edges = model.edges.map((e) => ({ id: e.id || crypto.randomUUID(), parentId: e.parentId, childId: e.childId, bend: Number.isFinite(e.bend) ? e.bend : 0 })).filter((e) => ids.has(e.parentId) && ids.has(e.childId));
+  state.edges = model.edges.map((e) => ({ id: e.id || crypto.randomUUID(), parentId: e.parentId, childId: e.childId, bend: Number.isFinite(e.bend) ? e.bend : 0, endAnchorIndex: Number.isFinite(e.endAnchorIndex) ? e.endAnchorIndex : null })).filter((e) => ids.has(e.parentId) && ids.has(e.childId));
 
   state.highlightedNodeIds.clear();
   state.selectedNodeId = null;

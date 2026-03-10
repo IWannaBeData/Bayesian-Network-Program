@@ -75,6 +75,12 @@ input, select {
 .edge-visible { stroke: #5f91db; stroke-width: 3.2; fill: none; marker-end: url(#arrowHead); pointer-events: none; }
 .edge-hit { stroke: rgba(0,0,0,0); stroke-width: 24; fill: none; pointer-events: stroke; cursor: grab; }
 .edge-selected .edge-visible { stroke: #f39f1f; stroke-width: 4.4; }
+.arrow-head-handle {
+  fill: #fff;
+  stroke: #f39f1f;
+  stroke-width: 2;
+  cursor: crosshair;
+}
 
 .node {
   position: absolute;

@@ -10,6 +10,7 @@ A browser-based Bayesian Network editor with automatic evidence assumptions and 
 - Removed the View/Reset section from the UI.
 - Renamed left panel section from **Persistence** to **File**.
 - Added a default light grid in the canvas background.
+- Arrow head can be dragged and snapped to node connection points (four corners + side centers).
 - Multi-select support for nodes and arrows:
   - Shift+click multiple nodes/arrows.
   - Highlight all nodes quickly.
