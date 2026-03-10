@@ -56,7 +56,9 @@ input, select {
 .drop-zone.dragover { background: #fff8d8; border-color: #f2ab2d; }
 
 .canvas-wrap {
-  border: 1px solid var(--panel-border); border-radius: 14px; overflow: hidden;
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  overflow: hidden;
   background: linear-gradient(180deg, #f9fcff, #edf4ff);
 }
 .canvas { width: 100%; height: 100%; position: relative; cursor: grab; }
@@ -64,14 +66,26 @@ input, select {
 .viewport { width: 100%; height: 100%; transform-origin: 0 0; position: relative; }
 
 #edgeLayer { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.edge { stroke: #5f91db; stroke-width: 3; fill: none; marker-end: url(#arrowHead); pointer-events: stroke; cursor: pointer; }
-.edge.selected { stroke: #f39f1f; stroke-width: 4; }
-.bend-handle { fill: #ffd380; stroke: #8a5a00; cursor: grab; }
+.edge-visible { stroke: #5f91db; stroke-width: 3.2; fill: none; marker-end: url(#arrowHead); pointer-events: none; }
+.edge-hit {
+  stroke: rgba(0,0,0,0);
+  stroke-width: 24;
+  fill: none;
+  pointer-events: stroke;
+  cursor: grab;
+}
+.edge-selected .edge-visible { stroke: #f39f1f; stroke-width: 4.4; }
 
 .node {
-  position: absolute; width: 154px; min-height: 58px; padding: 10px; border-radius: 12px;
-  border: 1px solid rgba(90, 120, 170, 0.35); box-shadow: 0 6px 14px rgba(65, 95, 140, 0.2);
-  user-select: none; cursor: move;
+  position: absolute;
+  width: 154px;
+  min-height: 58px;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(90, 120, 170, 0.35);
+  box-shadow: 0 6px 14px rgba(65, 95, 140, 0.2);
+  user-select: none;
+  cursor: move;
   background: linear-gradient(135deg, #d8f4f0, #cbe8ff);
 }
 .node.selected { outline: 2px solid #f39f1f; }

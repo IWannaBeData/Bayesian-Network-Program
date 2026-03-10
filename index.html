@@ -10,7 +10,7 @@
     <div class="app-shell">
       <header class="top-bar">
         <h1>Bayesian Network Studio</h1>
-        <p>Brighter editor with smoother pan/zoom, stable arrow drawing, and probability-based node colors.</p>
+        <p>Brighter editor with smoother pan/zoom, easier arrow editing, and probability-based node colors.</p>
       </header>
 
       <div class="layout">
@@ -27,12 +27,14 @@
             <button id="drawArrowToolBtn">✏️ Draw Arrow</button>
             <button id="deleteSelectedBtn">🗑 Delete Selected</button>
             <div id="drawHint" class="hint hidden">Draw arrow: click source node, then target node.</div>
+            <div class="hint">Tip: click + drag an arrow to bend it manually.</div>
+            <div class="hint">Press Backspace to delete selected node/arrow.</div>
           </div>
 
           <h2>View</h2>
           <div class="button-stack">
             <button id="resetViewBtn">Reset Pan/Zoom</button>
-            <div class="hint">Use mouse wheel to zoom, drag empty canvas to pan.</div>
+            <div class="hint">Mouse wheel zooms. Drag empty canvas to pan.</div>
           </div>
 
           <h2>Color Adjustor</h2>
@@ -53,7 +55,7 @@
           </div>
         </aside>
 
-        <main class="canvas-wrap" id="canvasWrap">
+        <main class="canvas-wrap">
           <div id="canvas" class="canvas">
             <div id="viewport" class="viewport">
               <svg id="edgeLayer"></svg>
@@ -82,7 +84,7 @@
             </div>
 
             <div id="edgeInspector" class="hidden">
-              <label>Arrow Bend <input id="edgeBendInput" type="range" min="-220" max="220" step="1" /></label>
+              <div class="hint">Arrow selected. Drag it directly to bend its curve.</div>
             </div>
           </div>
 

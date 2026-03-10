@@ -1,27 +1,28 @@
 # Bayesian-Network-Program
 
-A browser-based Bayesian Network editor with a lighter visual style and easier graph interaction.
+A browser-based Bayesian Network editor with a brighter interface and easier graph manipulation.
 
-## What changed in this revision
+## Latest UX fixes
 
-- Fixed interaction stability for connecting nodes so pressing/clicking nodes no longer makes boxes disappear.
-- Added smoother navigation for larger networks:
-  - Pan by dragging empty canvas.
-  - Zoom with mouse wheel.
-  - Reset pan/zoom button.
-- Added a **Color Adjustor**:
-  - UI hue slider.
-  - Node brightness slider.
-- Added node heat coloring (when applicable):
-  - For binary-state nodes, after inference the node color becomes a gradient from **Red (False-like / low probability of first state)** to **Green (True-like / high probability of first state)**.
-- Kept robust save/load:
-  - Open file picker import.
-  - Drag-and-drop `.json` import.
-  - Save to file and quick local save/load.
+- Arrows are now much easier to interact with:
+  - Larger invisible hit area for arrow selection.
+  - Drag arrow directly to bend manually (no bend slider/handle needed).
+- Added keyboard delete shortcut:
+  - Press **Backspace** to delete selected node or arrow.
+- Improved box connection behavior:
+  - More anchor points around each node edge for cleaner routing.
+- Node state defaults are now type-specific:
+  - **Hypothesis** defaults to `True` / `False`.
+  - **Evidence** defaults to `Present` / `Absent`.
+- Kept pan/zoom and color controls:
+  - Pan canvas, zoom with wheel, reset view.
+  - UI hue, node brightness, and green↔red probability coloring.
 
-## Node types
-- Evidence
-- Hypothesis
+## Persistence
+- Save model to JSON file.
+- Open JSON save file.
+- Drag/drop JSON save file.
+- Quick save/load in local storage.
 
 ## Run
 ```bash
