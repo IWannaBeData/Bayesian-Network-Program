@@ -42,12 +42,8 @@ function setupEvents() {
   document.getElementById('selectToolBtn').addEventListener('click', () => setTool('select'));
   document.getElementById('drawArrowToolBtn').addEventListener('click', () => setTool('drawArrow'));
   document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelected);
-  document.getElementById('resetViewBtn').addEventListener('click', resetView);
   document.getElementById('highlightAllBtn').addEventListener('click', highlightAllNodes);
   document.getElementById('clearHighlightBtn').addEventListener('click', clearHighlights);
-  document.getElementById('gridToggle').addEventListener('change', (e) => {
-    canvasWrap.classList.toggle('grid-on', e.target.checked);
-  });
 
   nodeNameInput.addEventListener('input', () => {
     const node = getSelectedNode();
@@ -386,6 +382,7 @@ function onCanvasWheel(event) {
 
 function onCanvasMouseDown(event) {
   if (event.target !== canvas && event.target !== viewport && event.target !== edgeLayer) return;
+  if (!event.ctrlKey) return;
   state.panningCanvas = { x: event.clientX, y: event.clientY, panX: state.pan.x, panY: state.pan.y };
   canvas.classList.add('panning');
 }
@@ -426,11 +423,6 @@ function applyViewportTransform() {
   viewport.style.transform = `translate(${state.pan.x}px, ${state.pan.y}px) scale(${state.zoom})`;
 }
 
-function resetView() {
-  state.pan = { x: 0, y: 0 };
-  state.zoom = 1;
-  applyViewportTransform();
-}
 
 function toggleHighlight(nodeId) {
   if (state.highlightedNodeIds.has(nodeId)) state.highlightedNodeIds.delete(nodeId);
@@ -852,8 +844,7 @@ function loadModelObject(model) {
   state.pendingArrowSourceId = null;
   state.pan = model.pan && Number.isFinite(model.pan.x) && Number.isFinite(model.pan.y) ? model.pan : { x: 0, y: 0 };
   state.zoom = Number.isFinite(model.zoom) ? Math.max(0.35, Math.min(2.6, model.zoom)) : 1;
-  document.getElementById('gridToggle').checked = !!model.gridOn;
-  canvasWrap.classList.toggle('grid-on', !!model.gridOn);
+  canvasWrap.classList.toggle('grid-on', model.gridOn !== false);
   applyViewportTransform();
   runInference(false);
   render();

@@ -5,9 +5,11 @@ A browser-based Bayesian Network editor with automatic evidence assumptions and 
 ## Latest behavior updates
 
 - Clicking empty canvas now automatically switches back to **Select** tool.
+- To pan/move the grid/network, hold **Ctrl** while dragging on empty canvas.
 - Removed UI hue selector; kept node brightness only.
+- Removed the View/Reset section from the UI.
 - Renamed left panel section from **Persistence** to **File**.
-- Added **Light Grid** toggle for the canvas background.
+- Added a default light grid in the canvas background.
 - Multi-select support for nodes and arrows:
   - Shift+click multiple nodes/arrows.
   - Highlight all nodes quickly.

@@ -28,15 +28,8 @@
             <button id="deleteSelectedBtn">🗑 Delete Selected</button>
             <button id="highlightAllBtn">✨ Highlight All Nodes</button>
             <button id="clearHighlightBtn">Clear Highlights</button>
-            <label><input id="gridToggle" type="checkbox" /> Light Grid</label>
-            <div id="drawHint" class="hint hidden">Draw arrow: click source node, then target node.</div>
+                        <div id="drawHint" class="hint hidden">Draw arrow: click source node, then target node.</div>
             <div class="hint">Tip: shift-click for multi-select. Backspace/Delete removes selected arrows/nodes.</div>
-          </div>
-
-          <h2>View</h2>
-          <div class="button-stack">
-            <button id="resetViewBtn">Reset Pan/Zoom</button>
-            <div class="hint">Wheel zooms. Drag empty canvas to pan. Clicking empty space returns to Select.</div>
           </div>
 
           <h2>Color</h2>
@@ -55,7 +48,7 @@
           </div>
         </aside>
 
-        <main class="canvas-wrap" id="canvasWrap">
+        <main class="canvas-wrap grid-on" id="canvasWrap">
           <div id="canvas" class="canvas">
             <div id="viewport" class="viewport">
               <svg id="edgeLayer"></svg>
