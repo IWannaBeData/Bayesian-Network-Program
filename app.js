@@ -74,11 +74,6 @@ function setupEvents() {
   document.getElementById('addStateBtn').addEventListener('click', addStateFromInput);
   document.getElementById('runInferenceBtn').addEventListener('click', () => runInference(true));
 
-  document.getElementById('nodeLightInput').addEventListener('input', (event) => {
-    state.nodeLight = Number(event.target.value);
-    renderNodes();
-  });
-
   document.getElementById('saveFileBtn').addEventListener('click', saveToFile);
   document.getElementById('openFileBtn').addEventListener('click', () => document.getElementById('uploadInput').click());
   document.getElementById('uploadInput').addEventListener('change', (event) => importFromFile(event.target.files?.[0]));
@@ -196,6 +191,7 @@ function uniform(len) {
 function setTool(tool) {
   state.tool = tool;
   state.pendingArrowSourceId = null;
+  state.dragNewEdge = null;
   document.getElementById('selectToolBtn').classList.toggle('active-tool', tool === 'select');
   document.getElementById('drawArrowToolBtn').classList.toggle('active-tool', tool === 'drawArrow');
   document.getElementById('drawHint').classList.toggle('hidden', tool !== 'drawArrow');
@@ -224,7 +220,9 @@ function renderNodes() {
     el.addEventListener('mousedown', (event) => {
       event.stopPropagation();
       if (state.tool === 'drawArrow') {
-        startNewEdgeDraw(node, event);
+        if (state.pendingArrowSourceId === node.id) {
+          startNewEdgeDraw(node, event);
+        }
         return;
       }
       if (state.tool !== 'select') return;
@@ -247,7 +245,11 @@ function renderNodes() {
 
     el.addEventListener('click', (event) => {
       event.stopPropagation();
-      if (state.tool === 'drawArrow') return;
+      if (state.tool === 'drawArrow') {
+        state.pendingArrowSourceId = node.id;
+        renderNodes();
+        return;
+      }
       if (event.shiftKey) toggleHighlight(node.id);
       else state.highlightedNodeIds = new Set([node.id]);
       selectNode(node.id, false);
