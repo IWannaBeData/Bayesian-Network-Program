@@ -12,6 +12,7 @@ const state = {
   dragNode: null,
   dragEdge: null,
   dragEdgeHead: null,
+  dragNewEdge: null,
   pan: { x: 0, y: 0 },
   zoom: 1,
   panningCanvas: null,
@@ -96,7 +97,8 @@ function setupEvents() {
   });
 
   window.addEventListener('mousemove', onMouseMove);
-  window.addEventListener('mouseup', () => {
+  window.addEventListener('mouseup', (event) => {
+    finalizeNewEdgeDraw(event);
     state.dragNode = null;
     state.dragEdge = null;
     state.dragEdgeHead = null;
@@ -216,6 +218,10 @@ function renderNodes() {
 
     el.addEventListener('mousedown', (event) => {
       event.stopPropagation();
+      if (state.tool === 'drawArrow') {
+        startNewEdgeDraw(node, event);
+        return;
+      }
       if (state.tool !== 'select') return;
 
       if (event.shiftKey) toggleHighlight(node.id);
@@ -236,10 +242,7 @@ function renderNodes() {
 
     el.addEventListener('click', (event) => {
       event.stopPropagation();
-      if (state.tool === 'drawArrow') {
-        handleArrowToolNodeClick(node.id);
-        return;
-      }
+      if (state.tool === 'drawArrow') return;
       if (event.shiftKey) toggleHighlight(node.id);
       else state.highlightedNodeIds = new Set([node.id]);
       selectNode(node.id, false);
@@ -324,10 +327,27 @@ function renderEdges() {
       edgeLayer.appendChild(headHandle);
     }
   });
+
+  if (state.dragNewEdge) {
+    const source = state.nodes.find((n) => n.id === state.dragNewEdge.parentId);
+    if (source) {
+      const pseudoTarget = { x: state.dragNewEdge.currentX - NODE_WIDTH / 2, y: state.dragNewEdge.currentY - NODE_HEIGHT / 2 };
+      const tempEdge = {
+        startAnchorIndex: state.dragNewEdge.startAnchorIndex,
+        endAnchorIndex: state.dragNewEdge.endAnchorIndex,
+        bend: 0,
+      };
+      const g = edgeGeometry(source, pseudoTarget, tempEdge);
+      const preview = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      preview.setAttribute('class', 'edge-preview');
+      preview.setAttribute('d', g.path);
+      edgeLayer.appendChild(preview);
+    }
+  }
 }
 
 function edgeGeometry(parent, child, edge) {
-  const start = anchorPoint(parent, child, true, null);
+  const start = anchorPoint(parent, child, true, Number.isFinite(edge.startAnchorIndex) ? edge.startAnchorIndex : null);
   const end = anchorPoint(child, parent, false, Number.isFinite(edge.endAnchorIndex) ? edge.endAnchorIndex : null);
   const bend = edge.bend || 0;
   const midX = (start.x + end.x) / 2;
@@ -429,6 +449,22 @@ function onMouseMove(event) {
     return;
   }
 
+  if (state.dragNewEdge) {
+    const world = screenToWorld(event.clientX, event.clientY);
+    state.dragNewEdge.currentX = world.x;
+    state.dragNewEdge.currentY = world.y;
+    const target = nodeAtWorld(world.x, world.y);
+    if (target && target.id !== state.dragNewEdge.parentId) {
+      state.dragNewEdge.targetId = target.id;
+      state.dragNewEdge.endAnchorIndex = nearestAnchorIndex(target, world.x, world.y);
+    } else {
+      state.dragNewEdge.targetId = null;
+      state.dragNewEdge.endAnchorIndex = null;
+    }
+    renderEdges();
+    return;
+  }
+
   if (state.dragEdgeHead) {
     const edge = state.edges.find((e) => e.id === state.dragEdgeHead.edgeId);
     if (!edge) return;
@@ -486,6 +522,76 @@ function clearHighlights() {
   updatePlainSummaryForCurrentSelection();
 }
 
+
+function nearestAnchorIndex(node, x, y) {
+  const cands = anchorCandidates(node);
+  let bi = 0;
+  let bd = Infinity;
+  cands.forEach((p, i) => {
+    const d = Math.hypot(x - p.x, y - p.y);
+    if (d < bd) { bd = d; bi = i; }
+  });
+  return bi;
+}
+
+function nodeAtWorld(x, y) {
+  for (let i = state.nodes.length - 1; i >= 0; i -= 1) {
+    const n = state.nodes[i];
+    if (x >= n.x && x <= n.x + NODE_WIDTH && y >= n.y && y <= n.y + NODE_HEIGHT) return n;
+  }
+  return null;
+}
+
+function startNewEdgeDraw(sourceNode, event) {
+  const world = screenToWorld(event.clientX, event.clientY);
+  state.dragNewEdge = {
+    parentId: sourceNode.id,
+    startAnchorIndex: nearestAnchorIndex(sourceNode, world.x, world.y),
+    currentX: world.x,
+    currentY: world.y,
+    targetId: null,
+    endAnchorIndex: null,
+  };
+  state.selectedNodeId = null;
+  state.selectedEdgeIds.clear();
+  renderEdges();
+}
+
+function finalizeNewEdgeDraw(event) {
+  if (!state.dragNewEdge) return;
+  const world = screenToWorld(event.clientX, event.clientY);
+  const parentId = state.dragNewEdge.parentId;
+  const target = state.dragNewEdge.targetId
+    ? state.nodes.find((n) => n.id === state.dragNewEdge.targetId)
+    : nodeAtWorld(world.x, world.y);
+
+  if (target && target.id !== parentId && !state.edges.some((e) => e.parentId === parentId && e.childId === target.id)) {
+    const edge = {
+      id: crypto.randomUUID(),
+      parentId,
+      childId: target.id,
+      bend: 0,
+      startAnchorIndex: state.dragNewEdge.startAnchorIndex,
+      endAnchorIndex: Number.isFinite(state.dragNewEdge.endAnchorIndex)
+        ? state.dragNewEdge.endAnchorIndex
+        : nearestAnchorIndex(target, world.x, world.y),
+    };
+    state.edges.push(edge);
+    if (createsCycle()) {
+      state.edges.pop();
+    } else {
+      const child = state.nodes.find((n) => n.id === target.id);
+      if (child) initializeCpt(child);
+      runInference(false);
+      state.selectedEdgeIds = new Set([edge.id]);
+    }
+  }
+
+  state.dragNewEdge = null;
+  render();
+  updatePlainSummaryForCurrentSelection();
+}
+
 function handleArrowToolNodeClick(nodeId) {
   if (!state.pendingArrowSourceId) {
     state.pendingArrowSourceId = nodeId;
@@ -497,7 +603,7 @@ function handleArrowToolNodeClick(nodeId) {
   if (parentId === nodeId) return renderNodes();
   if (state.edges.some((e) => e.parentId === parentId && e.childId === nodeId)) return renderNodes();
 
-  const edge = { id: crypto.randomUUID(), parentId, childId: nodeId, bend: 0, endAnchorIndex: null };
+  const edge = { id: crypto.randomUUID(), parentId, childId: nodeId, bend: 0, startAnchorIndex: null, endAnchorIndex: null };
   state.edges.push(edge);
   if (createsCycle()) {
     state.edges.pop();
@@ -881,7 +987,7 @@ function loadModelObject(model) {
   });
 
   const ids = new Set(state.nodes.map((n) => n.id));
-  state.edges = model.edges.map((e) => ({ id: e.id || crypto.randomUUID(), parentId: e.parentId, childId: e.childId, bend: Number.isFinite(e.bend) ? e.bend : 0, endAnchorIndex: Number.isFinite(e.endAnchorIndex) ? e.endAnchorIndex : null })).filter((e) => ids.has(e.parentId) && ids.has(e.childId));
+  state.edges = model.edges.map((e) => ({ id: e.id || crypto.randomUUID(), parentId: e.parentId, childId: e.childId, bend: Number.isFinite(e.bend) ? e.bend : 0, startAnchorIndex: Number.isFinite(e.startAnchorIndex) ? e.startAnchorIndex : null, endAnchorIndex: Number.isFinite(e.endAnchorIndex) ? e.endAnchorIndex : null })).filter((e) => ids.has(e.parentId) && ids.has(e.childId));
 
   state.highlightedNodeIds.clear();
   state.selectedNodeId = null;
