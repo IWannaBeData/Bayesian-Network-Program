@@ -107,6 +107,11 @@ function setupEvents() {
   });
 
   window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && state.dragNewEdge) {
+      state.dragNewEdge = null;
+      renderEdges();
+      return;
+    }
     if (event.key !== 'Backspace' && event.key !== 'Delete') return;
     const tag = event.target?.tagName?.toLowerCase();
     const typing = tag === 'input' || tag === 'textarea' || event.target?.isContentEditable;
@@ -453,7 +458,7 @@ function onMouseMove(event) {
     const world = screenToWorld(event.clientX, event.clientY);
     state.dragNewEdge.currentX = world.x;
     state.dragNewEdge.currentY = world.y;
-    const target = nodeAtWorld(world.x, world.y);
+    const target = nodeAtWorld(world.x, world.y) || nearestNodeForConnection(world.x, world.y, state.dragNewEdge.parentId);
     if (target && target.id !== state.dragNewEdge.parentId) {
       state.dragNewEdge.targetId = target.id;
       state.dragNewEdge.endAnchorIndex = nearestAnchorIndex(target, world.x, world.y);
@@ -542,6 +547,23 @@ function nodeAtWorld(x, y) {
   return null;
 }
 
+function nearestNodeForConnection(x, y, excludeId) {
+  let best = null;
+  let bestDist = Infinity;
+  state.nodes.forEach((n) => {
+    if (n.id === excludeId) return;
+    const clampedX = Math.max(n.x, Math.min(x, n.x + NODE_WIDTH));
+    const clampedY = Math.max(n.y, Math.min(y, n.y + NODE_HEIGHT));
+    const d = Math.hypot(x - clampedX, y - clampedY);
+    if (d < bestDist) {
+      bestDist = d;
+      best = n;
+    }
+  });
+  // allow near-miss releases around nodes to still connect
+  return bestDist <= 28 ? best : null;
+}
+
 function startNewEdgeDraw(sourceNode, event) {
   const world = screenToWorld(event.clientX, event.clientY);
   state.dragNewEdge = {
@@ -563,7 +585,7 @@ function finalizeNewEdgeDraw(event) {
   const parentId = state.dragNewEdge.parentId;
   const target = state.dragNewEdge.targetId
     ? state.nodes.find((n) => n.id === state.dragNewEdge.targetId)
-    : nodeAtWorld(world.x, world.y);
+    : (nodeAtWorld(world.x, world.y) || nearestNodeForConnection(world.x, world.y, parentId));
 
   if (target && target.id !== parentId && !state.edges.some((e) => e.parentId === parentId && e.childId === target.id)) {
     const edge = {
