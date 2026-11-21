@@ -1,95 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayesian Network Studio</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <header class="top-bar">
-        <h1>Bayesian Network Studio</h1>
-        <p>Brighter editor with smoother pan/zoom, easier arrow editing, and automatic probability colors.</p>
-      </header>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Literature review, Bayesian network design, and complete FY 2027 ICD-10-CM catalog for the Bayesian Network Diagnostic Program.">
+  <title>Literature review | Bayesian Network Diagnostic Program</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#main">Bayesian Network<br>Diagnostic Program</a>
+      <nav aria-label="Sections">
+        <a href="#review">Literature</a>
+        <a href="#network">Network design</a>
+        <a href="#ehr">EHR integration</a>
+        <a href="#catalog">Diagnosis catalog</a>
+      </nav>
+    </div>
+  </header>
 
-      <div class="layout">
-        <aside class="panel left-panel">
-          <h2>Build</h2>
-          <div class="button-stack">
-            <button data-add-node="evidence">+ Evidence Node</button>
-            <button data-add-node="hypothesis">+ Hypothesis Node</button>
+  <main id="main">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="wrap hero-grid">
+        <div>
+          <h1 id="page-title">Bayesian diagnosis from medical history</h1>
+          <p class="lede">A literature review and design for an EHR app that uses a patient’s documented history to update the probability of a diagnosis.</p>
+          <div class="hero-actions">
+            <a class="button primary" href="#catalog">Browse the diagnosis catalog</a>
+            <a class="button secondary" href="#review">Read the literature review</a>
           </div>
-
-          <h2>Tools</h2>
-          <div class="button-stack">
-            <button id="selectToolBtn">🖱 Select</button>
-            <button id="drawArrowToolBtn">✏️ Draw Arrow</button>
-            <button id="deleteSelectedBtn">🗑 Delete Selected</button>
-            <button id="highlightAllBtn">✨ Highlight All Nodes</button>
-            <button id="clearHighlightBtn">Clear Highlights</button>
-                        <div id="drawHint" class="hint hidden">Draw arrow: drag from source node and release on target connection point.</div>
-            <div class="hint">Tip: shift-click for multi-select. Backspace/Delete removes selected arrows/nodes.</div>
-          </div>
-
-          <h2>File</h2>
-          <div class="button-stack">
-            <button id="saveFileBtn">⬇ Save</button>
-            <button id="openFileBtn">📂 Open Save File</button>
-            <input id="uploadInput" type="file" accept=".json,application/json" class="hidden" />
-            <div id="dropZone" class="drop-zone">Drop .json save file here</div>
-            <button id="quickSaveBtn">💾 Quick Save</button>
-            <button id="quickLoadBtn">📥 Quick Load</button>
-          </div>
-        </aside>
-
-        <main class="canvas-wrap grid-on" id="canvasWrap">
-          <div id="canvas" class="canvas">
-            <div id="viewport" class="viewport">
-              <svg id="edgeLayer"></svg>
-            </div>
-          </div>
-        </main>
-
-        <aside class="panel right-panel">
-          <h2>Inspector</h2>
-          <div id="emptySelection" class="hint">Select node or arrow.</div>
-          <div id="inspector" class="inspector hidden">
-            <div id="nodeInspector" class="hidden">
-              <label>Name <input id="nodeName" type="text" /></label>
-              <label>Type <input id="nodeType" type="text" disabled /></label>
-              <label>Role <input id="nodeRole" type="text" disabled /></label>
-              <label>Evidence value <select id="evidenceSelect"></select></label>
-
-              <label>Probability of <select id="probabilityStateSelect"></select></label>
-              <div id="probabilityValue" class="hint">--</div>
-
-              <h3>States</h3>
-              <div id="statePills" class="state-pills"></div>
-              <div class="state-add-row">
-                <input id="newStateInput" type="text" placeholder="Add state (spaces allowed)" />
-                <button id="addStateBtn">Add</button>
-              </div>
-
-              <h3>CPT</h3>
-              <div id="cptContainer" class="cpt-container"></div>
-            </div>
-
-            <div id="edgeInspector" class="hidden">
-              <div class="hint">Arrow selected. Drag it directly to bend its curve.</div>
-            </div>
-          </div>
-
-          <h2>Inference</h2>
-          <button id="runInferenceBtn">Run Exact Inference</button>
-          <div id="inferenceOutput" class="inference-output"></div>
-
-          <h2>Plain Summary</h2>
-          <div id="summaryOutput" class="inference-output"></div>
+        </div>
+        <aside class="release-card" aria-labelledby="release-title">
+          <h2 id="release-title">U.S. ICD-10-CM</h2>
+          <p>FY 2027 · Oct 1, 2026–Sep 30, 2027</p>
+          <dl>
+            <div><dt>Catalog entries</dt><dd>98,403</dd></div>
+            <div><dt>Reportable codes</dt><dd>74,879</dd></div>
+            <div><dt>Hierarchy headers</dt><dd>23,524</dd></div>
+          </dl>
+          <a href="https://www.cms.gov/medicare/coding-billing/icd-10-codes">CMS release documentation</a>
         </aside>
       </div>
-    </div>
+    </section>
 
-    <script src="app.js"></script>
-  </body>
+    <div class="wrap">
+      <section class="section" id="review" aria-labelledby="review-title">
+        <h2 id="review-title">Literature review</h2>
+        <p class="intro">This narrative review covers probabilistic diagnosis, inference at scale, longitudinal modeling, and how to evaluate future estimates. Sources were checked on November 21, 2026. The code inventory covers the full pinned release. Disease-specific evidence extraction and parameter estimation are future work.</p>
+
+        <div class="research-grid">
+          <article class="research-card">
+            <h3>Several diagnoses can coexist</h3>
+            <p>QMR-DT modeled diseases and findings in a two-layer Bayesian network and estimated posterior disease marginals. Its companion evaluation used cases abstracted from educational material. The design is a useful starting point for representing coexisting diseases and shared findings. Evaluation in this project would need longitudinal EHR data and a reference standard for the intended setting.</p>
+            <p class="sources"><a href="https://pubmed.ncbi.nlm.nih.gov/1762578/">Shwe et al., 1991</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/1762579/">Middleton et al., 1991</a></p>
+          </article>
+          <article class="research-card">
+            <h3>Graph structure controls inference cost</h3>
+            <p>General exact inference is NP-hard. Dechter’s analysis shows that elimination cost grows exponentially with induced width. A sparse graph can still be difficult if it creates large intermediate factors. This favors small parent sets, limited connections between modules, and measuring inference cost for each query.</p>
+            <p class="sources"><a href="https://www.sciencedirect.com/science/article/pii/000437029090060D">Cooper, 1990</a> · <a href="https://www.sciencedirect.com/science/article/pii/S0004370299000594">Dechter, 1999</a></p>
+          </article>
+          <article class="research-card">
+            <h3>Longitudinal evidence has an order</h3>
+            <p>Dynamic Bayesian networks represent relationships within and across time slices. This lets the model distinguish prior disease, disease at the time of a visit, and later outcomes. Reuse chronic states across time, and give acute events an explicit window and onset.</p>
+            <p class="sources"><a href="https://www.cs.ubc.ca/~murphyk/Thesis/thesis.pdf">Murphy, 2002</a></p>
+          </article>
+          <article class="research-card">
+            <h3>Population risk and visit-time diagnosis are different questions</h3>
+            <p>Prospective cohort evidence links diabetes to later coronary heart disease. A visit-time acute MI model needs evidence for its presenting population, target definition, and index time. A cohort hazard ratio alone cannot fill a conditional probability table for a patient presenting today.</p>
+            <p class="sources"><a href="https://pubmed.ncbi.nlm.nih.gov/20609967/">Emerging Risk Factors Collaboration, 2010</a></p>
+          </article>
+          <article class="research-card">
+            <h3>Diagnostic evidence depends on how it was measured</h3>
+            <p>Record the study setting, patient spectrum, index test, reference standard, and missing or indeterminate results. These details determine whether a reported test likelihood can be applied in a particular care setting.</p>
+            <p class="sources"><a href="https://www.bmj.com/content/351/bmj.h5527">Bossuyt et al., STARD 2015</a></p>
+          </article>
+          <article class="research-card">
+            <h3>Evaluate calibration where the model will be used</h3>
+            <p>Document cohort selection, predictor availability, baseline risk, missingness, and bias. Future evaluations should use separate sites and later time periods, quantify calibration and discrimination, and check performance across relevant subgroups.</p>
+            <p class="sources"><a href="https://www.bmj.com/content/385/bmj-2023-078378">Collins et al., TRIPOD+AI 2024</a> · <a href="https://www.bmj.com/content/388/bmj-2024-082505">Moons et al., PROBAST+AI 2025</a></p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="network" aria-labelledby="network-title">
+        <h2 id="network-title">Bayesian network design</h2>
+        <p class="intro">At a defined index time, query <strong>P(target diagnosis in its time window | history and findings available by the index time)</strong>. Start with a baseline for the cohort and care setting, then condition jointly on evidence. Report each disease marginal on its own scale so several diseases can coexist.</p>
+
+        <h3>From code to a network variable</h3>
+        <div class="table-scroll" role="region" aria-label="Network variables" tabindex="0">
+          <table>
+            <thead><tr><th scope="col">Record</th><th scope="col">Example identifiers</th><th scope="col">Role in the model</th></tr></thead>
+            <tbody>
+              <tr>
+                <th scope="row">Terminology entry</th><td><code>E11.9</code> → <code>icd10cm_e119</code><br><code>chapter:04</code>, <code>category:e11</code></td>
+                <td>Provides a stable code key. Store system, release, and effective dates alongside the key so changes in code meaning can be reviewed.</td>
+              </tr>
+              <tr>
+                <th scope="row">Coded history observation</th><td><code>icd10cm_e119__prior_history</code></td>
+                <td>Represents documentation in a named window. Normalize the source record, keep provenance, and reconcile records about the same episode before using it as evidence.</td>
+              </tr>
+              <tr>
+                <th scope="row">Clinical concept</th><td><code>dx_type2_diabetes</code><br><code>dx_acute_myocardial_infarction</code></td>
+                <td>Defines the underlying clinical state or hypothesis. Review mappings from code variants, laterality, severity, and combination codes against the intended clinical definition.</td>
+              </tr>
+              <tr>
+                <th scope="row">Conditional distribution</th><td><code>parameterSetId: null</code></td>
+                <td>Will specify how a node depends on its parents for a defined cohort, window, and setting. Each approved distribution will link to its evidence and model version.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Link a prior diabetes state to the acute MI hypothesis only after defining a suitable evidence model and accounting for shared predictors. Use a versioned map with relations such as <code>exact</code>, <code>broader</code>, and <code>review_required</code>. For example, <code>I21.9</code> represents a record coded as unspecified acute MI. The clinical hypothesis needs a definition covering all qualifying forms.</p>
+        <p>States such as <code>present</code> and <code>absent</code> describe a clinical node. A missing observation stays unobserved. A verified absence and an empty problem list carry different information. For a coding-observation node, <code>not_recorded</code> requires that the specified window and record coverage were actually checked.</p>
+        <p class="sources"><a href="https://www.cms.gov/files/document/fy-2027-icd-10-cm-coding-guidelines.pdf">ICD-10-CM coding guidelines</a> · <a href="https://hl7.org/fhir/R4/condition-definitions.html">FHIR R4 Condition definitions</a></p>
+
+        <h3>Structure for thousands of variables</h3>
+        <ol class="steps">
+          <li><strong>Compose sparse modules.</strong> Use shared context nodes for age, encounter setting, and other supported predictors. Put established history upstream of current hypotheses and relevant findings. Keep each proposed edge reviewable with a temporal rule, a rationale, and a source. A dependency can be predictive without supporting a causal interpretation.</li>
+          <li><strong>Keep local distributions compact.</strong> Use small discrete parent sets and prefer structured conditional distributions when their assumptions fit. A noisy-OR can represent independently acting contributors. Model correlated parent effects explicitly where that assumption fails. Store nodes and edges as adjacency lists keyed by stable IDs.</li>
+          <li><strong>Compile the relevant subgraph.</strong> Validate references and acyclicity. Retain query and evidence ancestors and prune using sound conditional-independence rules so observations of shared effects can still connect hypotheses. Reuse compiled structure by network version, query scope, and evidence pattern.</li>
+          <li><strong>Budget for induced width.</strong> Estimate the largest factors under a min-fill elimination order. Use exact variable elimination or a junction tree within that budget. For larger queries, benchmark bounded approximate inference against exact results on tractable cases and expose approximation quality or return an unavailable result.</li>
+          <li><strong>Test shape and behavior independently.</strong> Exercise sparse synthetic graphs with thousands of variables, then challenge them with larger separators and shared findings. Track the largest factor, peak memory, and query latency. Verify temporal leakage, repeated evidence, and missing-data behavior on synthetic histories before any clinical evaluation.</li>
+        </ol>
+        <p class="sources"><a href="https://www.microsoft.com/en-us/research/wp-content/uploads/2016/11/A-Tractable-Algorithm-for-Diagnosing-Multiple-Diseases.pdf">Heckerman, multiple-disease inference</a> · <a href="https://www.sciencedirect.com/science/article/pii/S0004370299000594">Dechter, bucket elimination</a></p>
+
+        <h3>Function contracts</h3>
+        <div class="table-scroll" role="region" aria-label="Function contracts" tabindex="0">
+          <table>
+            <thead><tr><th scope="col">Function</th><th scope="col">Contract</th></tr></thead>
+            <tbody>
+              <tr><th scope="row"><code>lookupCode(index, code)</code></th><td>Available in <a href="./catalog.mjs">catalog.mjs</a>. Accepts dotted or undotted ICD-10-CM and returns the release-bound catalog record when present.</td></tr>
+              <tr><th scope="row"><code>draftObservation(record, windowId)</code></th><td>Available now. Returns a network-ready observation definition keyed by its code and window, with an empty parent list and an unset parameter set.</td></tr>
+              <tr><th scope="row"><code>normalizeHistory(bundle, asOf, terminology)</code></th><td>Planned. Emit deduplicated, timestamped evidence candidates, coding provenance, and explicit missingness or hold states.</td></tr>
+              <tr><th scope="row"><code>compileNetwork(definition, parameterSet)</code></th><td>Planned. Validate window definitions, DAG topology, and conditional probability distributions. Reject inference requests when required distributions are unset.</td></tr>
+              <tr><th scope="row"><code>infer(queryIds, evidence, asOf, horizon)</code></th><td>Planned. Return marginals for the pinned model version with the inference method, evidence used, provenance, and an unavailable status where useful estimates cannot be computed.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>What a future estimate must record</h3>
+        <p>Capture the target variable or edge, parent states, case definition, study design, population, care setting, exposure and outcome timing, follow-up, effect measure, adjustment set, uncertainty, and DOI or PMID. Keep the source estimate and any transformation into a model parameter traceable. Estimate priors from a compatible cohort. Fit or elicit conditional distributions jointly, accounting for shared predictors and correlated evidence.</p>
+      </section>
+
+      <section class="section" id="ehr" aria-labelledby="ehr-title">
+        <h2 id="ehr-title">EHR integration</h2>
+        <p class="intro">Use a read-only SMART on FHIR app with an EHR launch and authorized patient context. Practice Fusion is the first candidate because its public documentation describes provider launch and FHIR R4. eClinicalWorks is a second adapter target through its provider-centric FHIR developer program. Vendor registration, site enablement, and sandbox testing come before a clinical connection.</p>
+        <div class="table-scroll" role="region" aria-label="Vendor integration paths" tabindex="0">
+          <table>
+            <thead><tr><th scope="col">EHR</th><th scope="col">What to verify in the vendor sandbox</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Practice Fusion</th><td>Provider SMART launch, authorized patient and encounter context, permitted Condition searches, pagination, and problem-list versus encounter categories. <a href="https://practicefusion.com/fhir/get-started/">Onboarding</a> · <a href="https://www.practicefusion.com/fhir/api-specifications/">FHIR API specifications</a></td></tr>
+              <tr><th scope="row">eClinicalWorks</th><td>Provider app registration, practice activation, available launch capabilities and scopes, and site-specific Condition profile and search support. <a href="https://www.eclinicalworks.com/resources/certified-ehr-technology/">API access information</a> · <a href="https://fhir.eclinicalworks.com/">Developer portal</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Use FHIR <code>Condition</code> for problem-list and encounter diagnoses. Preserve source coding system and version, category, clinical and verification status, onset, abatement, recorded date, encounter, and resource provenance when available. Hold provisional or differential codes for review and exclude entries marked entered-in-error. Resolve conflicting status and overlapping episodes before conditioning. Keep family history and personal history distinct. Apply both clinical timing and when the information became available to prevent look-ahead.</p>
+        <p>SNOMED CT is a future input. Preserve the original coding and use a licensed, versioned mapping when needed. The NLM map runs from SNOMED CT to ICD-10-CM and can yield multiple targets under mapping rules.</p>
+        <p class="sources"><a href="https://www.hl7.org/fhir/smart-app-launch/STU2/app-launch.html">SMART App Launch 2.0</a> · <a href="https://www.hl7.org/fhir/us/core/STU6.1/StructureDefinition-us-core-condition-problems-health-concerns.html">US Core problem-list profile</a> · <a href="https://www.hl7.org/fhir/us/core/STU6.1/StructureDefinition-us-core-condition-encounter-diagnosis.html">US Core encounter profile</a> · <a href="https://www.nlm.nih.gov/research/umls/mapping_projects/faqsnomedct_to_icd10cm.html">NLM map FAQ</a></p>
+        <p class="callout">This research site contains public terminology and design documentation. The future EHR app will require a separate runtime for authorized patient data. The catalog runs entirely in the browser.</p>
+      </section>
+
+      <section class="section catalog" id="catalog" aria-labelledby="catalog-title">
+        <h2 id="catalog-title">Diagnosis code catalog</h2>
+        <p class="intro">Search the complete FY 2027 ICD-10-CM order file, including reportable codes and hierarchy headers. Every entry has a stable variable name and chapter and category tags. Clinical hypotheses use reviewed mappings from these entries.</p>
+        <div class="catalog-panel">
+          <div class="filters">
+            <label>Search codes, titles, variables, or tags
+              <input id="catalog-search" type="search" placeholder="E11.9 or myocardial infarction" autocomplete="off" disabled>
+            </label>
+            <label>Chapter
+              <select id="catalog-chapter" disabled><option value="">All chapters</option></select>
+            </label>
+            <label>Entry type
+              <select id="catalog-type" disabled>
+                <option value="">All entries</option>
+                <option value="code">Reportable codes</option>
+                <option value="header">Hierarchy headers</option>
+              </select>
+            </label>
+          </div>
+          <div class="catalog-toolbar">
+            <p id="catalog-status" role="status" aria-live="polite">Loading the official catalog…</p>
+            <button id="catalog-download" type="button" disabled>Download full CSV</button>
+            <button id="catalog-retry" type="button" hidden>Retry</button>
+          </div>
+          <div class="table-scroll" role="region" aria-label="Catalog results" tabindex="0">
+            <table class="catalog-table">
+              <thead><tr><th scope="col">ICD-10-CM</th><th scope="col">Official title</th><th scope="col">Variable name</th><th scope="col">Tags</th><th scope="col">Entry type</th></tr></thead>
+              <tbody id="catalog-results"></tbody>
+            </table>
+          </div>
+          <div class="pagination" aria-label="Catalog pages">
+            <button id="catalog-prev" type="button" disabled>Previous</button>
+            <span id="catalog-page"></span>
+            <button id="catalog-next" type="button" disabled>Next</button>
+          </div>
+        </div>
+        <p class="sources"><a href="https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip">Official CMS source files</a> · <a href="https://www.cdc.gov/nchs/icd/icd-10-cm/files.html">CDC release history</a> · <a href="./data/manifest.json">Catalog build manifest</a></p>
+        <noscript><p>The catalog search and CSV export require JavaScript. The official source files are linked above.</p></noscript>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Bayesian Network Diagnostic Program</span>
+      <a href="https://github.com/IWannaBeData/Bayesian-Network-Program">View the GitHub repository</a>
+    </div>
+  </footer>
+</body>
 </html>
