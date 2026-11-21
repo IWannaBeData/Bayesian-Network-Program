@@ -1,0 +1,72 @@
+{
+  "system": "http://hl7.org/fhir/sid/icd-10-cm",
+  "version": "FY2027-2026-10-01",
+  "effectiveFrom": "2026-10-01",
+  "effectiveThrough": "2027-09-30",
+  "source": "https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip",
+  "sourceFiles": {
+    "order": {
+      "file": "icd10cm_order_2027.txt",
+      "sha256": "38981fb2c1226e2b92393cef7d921d2293494dd184b5ad039dde08e4b364265f"
+    },
+    "codes": {
+      "file": "icd10cm_codes_2027.txt",
+      "sha256": "3c0583a38ee0e848f7dc0ac8ce88e8f001bbba8c6385ed825d44d46f6e5297c9"
+    }
+  },
+  "entries": 98403,
+  "reportable": 74879,
+  "headers": 23524,
+  "rowSchema": [
+    "undottedCode",
+    "reportableFlag",
+    "longTitle"
+  ],
+  "shards": [
+    {
+      "name": "icd10cm-2027-01.tsv.gz",
+      "rows": 12000,
+      "sha256": "8e2836945eee0d9b35d8e38f8617ad5125342d0be3565a8167019e848087cc96"
+    },
+    {
+      "name": "icd10cm-2027-02.tsv.gz",
+      "rows": 12000,
+      "sha256": "2733c81e6fc9d05862997416186d7055c0a252fd5cef2e02ca123989ac517e92"
+    },
+    {
+      "name": "icd10cm-2027-03.tsv.gz",
+      "rows": 12000,
+      "sha256": "3df5a302591513785f3efcdca115959c4dc4ef190ae3c72e36f12c10a0ef7ce0"
+    },
+    {
+      "name": "icd10cm-2027-04.tsv.gz",
+      "rows": 12000,
+      "sha256": "bdfc68a9447e246e17c0b7c561ded399ca8ccc17f87c6ed02d60848d71632b17"
+    },
+    {
+      "name": "icd10cm-2027-05.tsv.gz",
+      "rows": 12000,
+      "sha256": "7539e3b1e69deb7f3f5d02deb12a3677e25a43542c6bf6c0288eb707e80efa2a"
+    },
+    {
+      "name": "icd10cm-2027-06.tsv.gz",
+      "rows": 12000,
+      "sha256": "7b8a29c1deda9c8b0fe0444ad5cedf9c393d975a36787d05dbed0013ddfee852"
+    },
+    {
+      "name": "icd10cm-2027-07.tsv.gz",
+      "rows": 12000,
+      "sha256": "471ccbec801b82ca415ef77cf4327a15ef3a5fd1600da37408ff6dd977e75f41"
+    },
+    {
+      "name": "icd10cm-2027-08.tsv.gz",
+      "rows": 12000,
+      "sha256": "5ac0af2e1e6dfb02d2f6fb3ea41e76712e521d296e00f43c1604e84539c31c8d"
+    },
+    {
+      "name": "icd10cm-2027-09.tsv.gz",
+      "rows": 2403,
+      "sha256": "4c789e7811d876799a7d6fd4bfcd32594dd7315050838f0ef8fae8c7ce564e19"
+    }
+  ]
+}
