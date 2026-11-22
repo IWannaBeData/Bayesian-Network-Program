@@ -1,0 +1,62 @@
+.diabetes-page { padding-block: clamp(1.75rem, 5vw, 3.5rem); }
+.diabetes-intro h1 { max-width: none; font-size: clamp(2.25rem, 1.5rem + 2.7vw, 3.85rem); }
+.diabetes-intro p { margin-top: 0.7rem; color: var(--muted); }
+#network-load { margin-top: 1.2rem; }
+.diabetes-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+.diabetes-panel { min-width: 0; padding: clamp(1rem, 2vw, 1.45rem); background: var(--white); border: 1px solid var(--rule); border-radius: 0.65rem; }
+.diabetes-panel h2 { font-family: inherit; font-size: 1.32rem; letter-spacing: -0.025em; }
+.diabetes-panel h3 { font-size: 1rem; }
+.diabetes-panel label { display: block; font-size: 0.88rem; font-weight: 650; }
+.diabetes-panel input, .diabetes-panel select {
+  min-height: 2.55rem;
+  border: 1px solid #a8bdb1;
+  border-radius: 0.4rem;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.35rem 0.52rem;
+  font-size: 0.92rem;
+}
+.diabetes-muted { color: var(--muted); font-size: 0.88rem; }
+.findings-panel > p, #cohort-window { margin-top: 0.5rem; }
+#study-findings-title { margin-top: 0.9rem; }
+.finding-list { display: grid; gap: 0.7rem; margin-top: 0.8rem; }
+.finding-list:empty { display: none; }
+.finding-row { border-top: 1px solid var(--rule); padding-top: 0.6rem; }
+.finding-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(6.4rem, 10.5rem); gap: 0.5rem; align-items: center; }
+.finding-heading label { overflow-wrap: anywhere; }
+.finding-row details, .result-provenance details { font-size: 0.86rem; }
+.finding-row details { margin-top: 0.18rem; }
+.diabetes-panel summary { cursor: pointer; color: var(--brand); width: fit-content; }
+.diabetes-panel summary:focus-visible { outline: 3px solid #137b66; outline-offset: 3px; }
+.diabetes-panel details p { margin-block: 0.35rem 0; }
+.other-findings { border-top: 1px solid var(--rule); margin-top: 0.95rem; padding-top: 0.8rem; }
+.other-findings > label { margin: 0.6rem 0 0.2rem; }
+.finding-results { list-style: none; padding: 0; margin: 0 0 0.65rem; }
+.finding-results li { margin-top: 0.28rem; }
+.finding-results button { width: 100%; text-align: left; }
+.estimate-panel > label { margin: 0.8rem 0 0.2rem; }
+.estimate-scope { margin-top: 0.45rem; }
+#scenario-baseline { margin-top: 0.85rem; }
+#scenario-baseline p { margin-top: 0.3rem; }
+.estimate-result { margin-top: 1rem; padding: 0.85rem 1rem; background: var(--soft); border-radius: 0.4rem; }
+.estimate-number { font-size: clamp(1.65rem, 1.15rem + 2.4vw, 2.65rem); color: var(--brand); font-weight: 730; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.estimate-result p + p { margin-top: 0.25rem; }
+.result-provenance { margin-top: 0.85rem; }
+.result-provenance > details { margin-top: 0.55rem; }
+.result-provenance .formula { overflow-wrap: anywhere; }
+.related-estimates { margin-top: 1rem; border-top: 1px solid var(--rule); padding-top: 0.85rem; }
+.related-estimates ul { padding-left: 1.2rem; margin-block: 0.45rem 0; }
+.related-estimates li + li { margin-top: 0.4rem; }
+@media (max-width: 760px) {
+  .diabetes-workspace { grid-template-columns: minmax(0, 1fr); }
+  .estimate-panel { grid-row: 1; }
+}
+@media (max-width: 390px) {
+  .finding-heading { grid-template-columns: minmax(0, 1fr); }
+}

@@ -1,5 +1,7 @@
 import { CHART_FIELDS, CHART_SECTIONS, AGE_SCALES, ageValueLabel, VOCABULARIES, lookupChartVariable } from './chart-variables.mjs';
-import { buildChartNetwork, createChartNode, FINDING_STATES, selectChartNode } from './chart-network.mjs';
+import {
+  buildChartNetwork, createChartNode, FINDING_STATES, readChartCase, saveChartCase, selectChartNode,
+} from './chart-network.mjs';
 import { indexCatalog } from './catalog.mjs';
 import { loadCatalogRecords } from './catalog-loader.mjs';
 
@@ -12,12 +14,23 @@ const preview = get('variable-preview');
 const message = get('chart-message');
 const add = get('add-chart-node');
 const download = get('export-chart');
+const sendDiabetes = get('send-diabetes');
 const nodesList = get('chart-nodes');
 const metadataList = get('chart-metadata');
 const incomingCode = new URLSearchParams(location.search).get('icd10cm');
 let selection = [];
 let catalogRequest;
 let submitting = false;
+
+function saveSelection() {
+  try {
+    saveChartCase(sessionStorage, selection);
+    return true;
+  } catch {
+    messageText('This browser could not share the chart with the Diabetes Network.', true);
+    return false;
+  }
+}
 
 function element(tag, text) {
   const item = document.createElement(tag);
@@ -234,8 +247,9 @@ function displayValue(node) {
   return String(value) + (node.unit ? ' ' + node.unit : '');
 }
 
-function card(node) {
+function card(node, index) {
   const row = element('li');
+  if (node.role === 'evidence') row.id = 'chart-entry-' + (index + 1);
   const label = element('strong', node.label);
   const id = element('code', node.id);
   const value = element('p', displayValue(node));
@@ -260,7 +274,7 @@ function card(node) {
     selection = selection.filter(item => item.id !== node.id);
     renderSelection();
     add.focus();
-    messageText('Removed ' + node.id + '.');
+    if (saveSelection()) messageText('Removed ' + node.id + '.');
   });
   row.append(remove);
   return row;
@@ -276,6 +290,7 @@ function renderSelection() {
   get('metadata-panel').hidden = !snapshot.metadata.length;
   get('metadata-count').textContent = '(' + snapshot.metadata.length + ')';
   download.disabled = !selection.length;
+  sendDiabetes.disabled = !snapshot.nodes.length;
 }
 
 search.addEventListener('input', () => fieldMenu());
@@ -296,7 +311,7 @@ form.addEventListener('submit', async event => {
     const priorSize = selection.length;
     selection = selectChartNode(selection, node);
     renderSelection();
-    messageText((selection.length === priorSize ? 'Updated ' : 'Added ') + node.id + '.');
+    if (saveSelection()) messageText((selection.length === priorSize ? 'Updated ' : 'Added ') + node.id + '.');
   } catch (error) {
     messageText(error.message, true);
   } finally {
@@ -315,10 +330,22 @@ download.addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
+sendDiabetes.addEventListener('click', () => {
+  if (saveSelection()) location.assign('./diabetes.html');
+});
+
 get('registry-summary').textContent = CHART_FIELDS.length + ' predefined fields across ' +
   CHART_SECTIONS.length + ' chart sections, alongside the full ICD-10-CM catalog and custom fields.';
 fieldMenu(incomingCode ? 'diagnosis' : undefined);
 if (incomingCode) {
   form.elements.namedItem('code').value = incomingCode;
   updatePreview();
+}
+try {
+  selection = readChartCase(sessionStorage).nodes;
+  renderSelection();
+  const chartEntry = /^#chart-entry-(\d+)$/.exec(location.hash);
+  if (chartEntry) get('chart-entry-' + chartEntry[1])?.scrollIntoView();
+} catch {
+  messageText('This browser could not load the shared chart case.', true);
 }

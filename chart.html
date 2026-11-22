@@ -16,6 +16,7 @@
       <a class="brand" href="./">Bayesian Network<br>Diagnostic Program</a>
       <nav aria-label="Project pages">
         <a href="./chart.html" aria-current="page">Chart builder</a>
+        <a href="./diabetes.html">Diabetes Network</a>
         <a href="./#catalog">ICD-10-CM catalog</a>
         <a href="./#review">Literature review</a>
       </nav>
@@ -26,7 +27,7 @@
       <div class="wrap">
         <h1>Chart variable builder</h1>
         <p class="lede">Select chart information to generate draft nodes. Each node keeps its variable name, recorded value, and source code when supplied.</p>
-        <p class="chart-note">Use sample data in this demo. Selections stay in this page until you export them.</p>
+        <p class="chart-note">Use sample data. Chart findings are shared with the Diabetes Network in this browser tab.</p>
       </div>
     </section>
     <div class="wrap chart-workspace">
@@ -55,6 +56,7 @@
         <header class="panel-header">
           <div><h2 id="nodes-title">Generated nodes</h2><p id="node-totals" role="status">0 nodes</p></div>
           <button id="export-chart" type="button" disabled>Export JSON</button>
+          <button id="send-diabetes" type="button" disabled>Open in diabetes network</button>
         </header>
         <p id="empty-nodes">Add a chart value to see its node here.</p>
         <ul id="chart-nodes" class="chart-nodes"></ul>

@@ -8,6 +8,17 @@ This project explores how documented medical history could update the probabilit
 - [Chart variable builder](https://iwannabedata.github.io/Bayesian-Network-Program/chart.html) for selecting chart values and exporting draft nodes.
 - [Diagnosis catalog and CSV export](https://iwannabedata.github.io/Bayesian-Network-Program/#catalog) for all 98,403 entries in the U.S. FY 2027 ICD-10-CM order file, including 74,879 reportable codes and 23,524 hierarchy headers.
 
+- [Diabetes Network](https://iwannabedata.github.io/Bayesian-Network-Program/diabetes.html) for following type 2 diabetes estimates as chart findings are recorded.
+
+
+## Diabetes Network
+
+The page loads the ICD-10-CM catalog, clinical chart fields, and study evidence into a fixed node registry and cohort-specific factors. Changing a finding updates its observation state on the existing graph. The Chart builder and Diabetes Network share evidence within the current browser tab. Each finding shows its recorded state, links to chart entries when available, and links to the relevant evidence. Explicitly absent chart findings become No. Unresolved or conflicting findings remain Unknown until a state is chosen. Use sample data with this demo.
+
+Each estimate links to its inputs, source and calculation. Matching studies update from the same findings. Published conditional rows give a cohort-specific prevalence or risk at a defined horizon. With one input still unknown, the page shows the range across the compatible rows. Cohorts that supply both diabetes-group likelihoods can demonstrate a Bayesian update from an entered baseline for that population. A case-wide probability requires a calibrated joint model. Relative-risk associations and nonuniform follow-up fractions are available as linked evidence.
+
+Run `node --test scripts/diabetes-network.test.mjs` to verify the fixed topology, chart transfer, conditional estimates, and Bayesian updates.
+
 ## Catalog contract
 
 `E11.9` resolves to `icd10cm_e119`, tagged `chapter:04` and `category:e11`. The variable name is derived from the undotted code and stays stable across releases. Each record also stores its coding system, release, effective dates, official title, and reporting status. Resolve historic clinical records using the applicable release and preserve any unmapped or ambiguous coding for review. [CMS ICD-10 release files](https://www.cms.gov/medicare/coding-billing/icd-10-codes)
@@ -81,7 +92,7 @@ selection = selectChartNode(selection, createChartNode('lab_result', {
 const snapshot = buildChartNetwork(selection);
 ```
 
-The builder loads the pinned ICD-10-CM release when a code needs validation. It accepts identifiers from other vocabularies as charted. Values stay in page memory until the user exports them.
+The builder loads the pinned ICD-10-CM release when a code needs validation. It accepts identifiers from other vocabularies as charted. Evidence values are shared with the Diabetes Network through browser-tab session storage. Chart metadata stays in page memory and is included in an explicit JSON export.
 
 ## Run locally
 

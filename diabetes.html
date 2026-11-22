@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Update study-specific estimates of type 2 diabetes as findings become known.">
+  <title>Diabetes Network | Bayesian Network Diagnostic Program</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./diabetes.css">
+  <script type="module" src="./diabetes-ui.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./">Bayesian Network<br>Diagnostic Program</a>
+      <nav aria-label="Project pages">
+        <a href="./diabetes.html" aria-current="page">Diabetes Network</a>
+        <a href="./chart.html">Chart builder</a>
+        <a href="./#diabetes">Study evidence</a>
+        <a href="./#catalog">Diagnosis catalog</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="wrap diabetes-page">
+    <header class="diabetes-intro">
+      <h1>Diabetes Network</h1>
+      <p>Update findings as you work through the differential. The network tracks type 2 diabetes estimates and links each result to its evidence.</p>
+    </header>
+    <p id="network-load" role="status">Loading the diabetes network…</p>
+    <div id="diabetes-workspace" class="diabetes-workspace" hidden>
+      <section class="diabetes-panel findings-panel" aria-labelledby="findings-title">
+        <h2 id="findings-title">Case findings</h2>
+        <p class="diabetes-muted">Use <strong>No</strong> for a documented absence. Findings start as <strong>Unknown</strong>.</p>
+        <p id="network-summary" class="diabetes-muted"></p>
+        <p id="chart-import-status" role="status" class="diabetes-muted" hidden></p>
+        <h3 id="study-findings-title">Findings for this estimate</h3>
+        <div id="model-findings" class="finding-list"></div>
+        <div class="other-findings">
+          <h3>Other findings</h3>
+          <div id="other-findings" class="finding-list"></div>
+          <label for="finding-search">Find a diagnosis or chart variable</label>
+          <input id="finding-search" type="search" placeholder="Pneumonia, J18.9, age…" autocomplete="off">
+          <ul id="finding-results" class="finding-results"></ul>
+          <button id="clear-findings" type="button" disabled>Clear network entries</button>
+        </div>
+      </section>
+
+      <section class="diabetes-panel estimate-panel" aria-labelledby="estimate-title">
+        <h2 id="estimate-title">Type 2 diabetes estimate</h2>
+        <p class="diabetes-muted estimate-scope">Available estimates apply to their study populations and time windows. A case-wide probability requires a calibrated joint model.</p>
+        <label for="diabetes-cohort">Study and endpoint</label>
+        <select id="diabetes-cohort"></select>
+        <p id="cohort-window" class="diabetes-muted"></p>
+        <div id="scenario-baseline" hidden>
+          <label for="diabetes-prior">Scenario baseline (%)</label>
+          <input type="number" id="diabetes-prior" min="0" max="100" step="any" placeholder="Enter a cohort-compatible baseline">
+          <p class="diabetes-muted">Use a baseline for this population. The study’s matched sample ratio does not supply one.</p>
+        </div>
+        <div id="diabetes-result" class="estimate-result" role="status" aria-live="polite"></div>
+        <div id="diabetes-provenance" class="result-provenance"></div>
+        <section id="related-estimate-panel" class="related-estimates" hidden aria-labelledby="related-estimate-title">
+          <h3 id="related-estimate-title">Other studies linked to these findings</h3>
+          <ul id="related-estimates"></ul>
+        </section>
+      </section>
+    </div>
+  </main>
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>Bayesian Network Diagnostic Program</span>
+      <a href="./#network">Network design</a>
+    </div>
+  </footer>
+</body>
+</html>
