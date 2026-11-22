@@ -1,0 +1,463 @@
+{
+  "checkedOn": "2026-11-21",
+  "papers": {
+    "igbinosa_2025": {
+      "citation": "Igbinosa EG, Dharmasekara B, Quint JK, Popat S, Bhaskaran K, Morganstein D, Cook S. Clinical Epidemiology. 2025;17:681–692.",
+      "title": "Mortality Outcomes in People with Lung Cancer with and without Type2 Diabetes: A Cohort Study in England",
+      "doi": "10.2147/CLEP.S498368",
+      "pmid": "40692755",
+      "article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12278945/",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "pdf": "./evidence/papers/igbinosa-2025.pdf",
+      "pdfKind": "Archived publisher PDF",
+      "sha256": "0ce6297aabf0b06cc1ac2377f782430e36a79606152c1a3b7409feffb3ca68f0"
+    },
+    "he_patel_2022": {
+      "citation": "He Y, Patel CJ. Acta Diabetologica. 2022;59:851–860.",
+      "title": "Shared exposure liability of type 2 diabetes and other chronic conditions in the UK Biobank",
+      "doi": "10.1007/s00592-022-01864-5",
+      "pmid": "35348899",
+      "article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9085680/",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "pdf": "./evidence/papers/he-patel-2022.pdf#page=2",
+      "pdfKind": "Archived publisher PDF, Table 1",
+      "sha256": "459768c60a089f7b3053c6c4f2720aec30b64301bcf019cb74a6d9ab99eeca8f"
+    },
+    "zghebi_2020": {
+      "citation": "Zghebi SS, Steinke DT, Rutter MK, Ashcroft DM. BMJ Open. 2020;10:e033866.",
+      "title": "Eleven-year multimorbidity burden among 637 255 people with and without type 2 diabetes: a population-based study using primary care and linked hospitalisation data",
+      "doi": "10.1136/bmjopen-2019-033866",
+      "pmid": "32611677",
+      "article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7358107/",
+      "license": "CC BY-NC 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "pdf": "https://bmjopen.bmj.com/content/bmjopen/10/7/e033866.full.pdf",
+      "pdfKind": "Publisher PDF"
+    },
+    "klimek_2015": {
+      "citation": "Klimek P, Kautzky-Willer A, Chmiel A, Schiller-Frühwirth I, Thurner S. PLOS Computational Biology. 2015;11(4):e1004125.",
+      "title": "Quantification of Diabetes Comorbidity Risks across Life Using Nation-Wide Big Claims Data",
+      "doi": "10.1371/journal.pcbi.1004125",
+      "pmid": "25855969",
+      "article": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1004125",
+      "license": "Creative Commons Attribution",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "pdf": "./evidence/papers/klimek-2015.pdf",
+      "pdfKind": "Archived publisher PDF",
+      "sha256": "536322ebf55eaa6f7cb30dca2091f161423613996390e40a3cbcefaa1d895290"
+    },
+    "hastrup_2024": {
+      "citation": "Hastrup S, Hedegaard JN, Andersen G, Rungby J, Johnsen SP. Diabetic Medicine. 2024;41:e15337.",
+      "title": "Type 2 diabetes mellitus in patients with ischemic stroke – A nationwide study",
+      "doi": "10.1111/dme.15337",
+      "pmid": "38662635",
+      "article": "https://onlinelibrary.wiley.com/doi/10.1111/dme.15337",
+      "license": "CC BY-NC-ND 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+      "pdf": "https://vbn.aau.dk/ws/files/741351653/Hastrup_et_al._2024_._Type_2_diabetes_mellitus_in_patients_with_ischemic_stroke_-_A_nationwide_study.pdf",
+      "pdfKind": "Aalborg University full-paper PDF"
+    },
+    "kjaergaard_2025": {
+      "citation": "Kjærgaard KA, Kousholt A, Thomsen RW, Woolpert KM, Sørensen HT, Borgquist S, Cronin-Fenton D. JNCI. 2025;117:537–544.",
+      "title": "Risk of type 2 diabetes after breast cancer treatment: a population-based cohort study in Denmark",
+      "doi": "10.1093/jnci/djae261",
+      "pmid": "39436974",
+      "article": "https://europepmc.org/articles/PMC11884854",
+      "license": "CC BY-NC 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/",
+      "pdf": "https://europepmc.org/articles/PMC11884854?pdf=render",
+      "pdfKind": "Europe PMC full-paper PDF"
+    }
+  },
+  "claims": {
+    "paperId": "klimek_2015",
+    "table": "S2 Data, age-stratified type 2 diabetes relative risks",
+    "csv": "./evidence/klimek-2015-s2.csv",
+    "csvSource": "https://doi.org/10.1371/journal.pcbi.1004125.s004",
+    "csvSha256": "9e48ed097f25a3af83848eb15cadb80efafa828275287438d87b7c770b252e66",
+    "population": "Austrian inpatients with claims in 2006–2007, grouped by age. The study used ICD-10 E11 to identify type 2 diabetes and excluded patients who died during the period.",
+    "limits": "These are age-band relative risks from the published co-occurrence analysis. A blank p-value means the supplement did not supply a test result. A row by itself does not establish a supported association. The original ICD-10 category and its same-code U.S. catalog anchor can have different definitions.",
+    "coverage": "The authors tested 1,051 ICD-10 categories. S2 Data contains rows for a subset of the categories tested. Links use same-code, three-character category anchors."
+  },
+  "cohorts": [
+    {
+      "id": "cprd_aurum_lung_2010_2022",
+      "paperId": "igbinosa_2025",
+      "direction": "t2d_given_condition",
+      "cohortLabel": "England CPRD Aurum lung cancer cohort",
+      "population": "69,674 adults with newly documented lung cancer in England, 2010–2022. Diabetes was defined by a qualifying code recorded before the first lung cancer code.",
+      "timeWindow": "Pre-existing documented T2D at the first recorded lung cancer diagnosis.",
+      "design": "Retrospective inception cohort",
+      "table": "Table 1 and Results, Study Population",
+      "groups": {
+        "present": "Eligible adults with newly recorded lung cancer"
+      },
+      "mapping": "C34 anchors the paper’s SNOMED CT-defined lung cancer phenotype. The estimate covers the full eligible study cohort.",
+      "limitations": "The denominator comprises lung cancer cases. This study estimate does not supply the diabetes prevalence in people without lung cancer, or a lung-cancer risk ratio.",
+      "rows": [
+        {
+          "code": "C34",
+          "phenotype": "Newly recorded lung cancer",
+          "tableRow": "baseline N by T2D status",
+          "excerpt": "Out of the final study population, 20.9% of people had T2DM.",
+          "given": {
+            "present": [
+              14566,
+              69674
+            ]
+          }
+        }
+      ],
+      "endpointKind": "co_prevalence",
+      "unit": "people"
+    },
+    {
+      "id": "uk_biobank_matched_prevalence",
+      "paperId": "he_patel_2022",
+      "direction": "condition_given_t2d",
+      "cohortLabel": "UK Biobank age- and sex-matched cross-sectional cohort",
+      "population": "21,935 participants with T2D, matched one-to-one to age- and sex-matched participants without T2D.",
+      "timeWindow": "Recorded diagnoses during the study surveillance period ending in 2019.",
+      "design": "Matched cross-sectional comparison",
+      "table": "Table 1",
+      "groups": {
+        "present": "Participants with diagnosed type 2 diabetes",
+        "absent": "Matched diabetes-free comparators"
+      },
+      "mapping": "The code is a navigation anchor for the study-defined phenotype. Ascertainment used diagnoses and other data sources specific to each condition.",
+      "limitations": "UK Biobank is a volunteer cohort. Matching and comparator selection affect these proportions. The estimates describe documented co-prevalence.",
+      "rows": [
+        {
+          "code": "I10",
+          "phenotype": "Hypertension",
+          "tableRow": "HT",
+          "given": {
+            "present": [
+              17163,
+              21935
+            ],
+            "absent": [
+              8238,
+              21935
+            ]
+          }
+        },
+        {
+          "code": "I48",
+          "phenotype": "Atrial fibrillation",
+          "tableRow": "AF",
+          "given": {
+            "present": [
+              3000,
+              21935
+            ],
+            "absent": [
+              1397,
+              21935
+            ]
+          }
+        },
+        {
+          "code": "I25",
+          "phenotype": "Coronary artery disease",
+          "tableRow": "CAD",
+          "given": {
+            "present": [
+              4152,
+              21935
+            ],
+            "absent": [
+              1416,
+              21935
+            ]
+          }
+        },
+        {
+          "code": "E66",
+          "phenotype": "Obesity (study definition includes BMI criteria)",
+          "tableRow": "Obesity",
+          "given": {
+            "present": [
+              3876,
+              21935
+            ],
+            "absent": [
+              701,
+              21935
+            ]
+          }
+        },
+        {
+          "code": "N18",
+          "phenotype": "Chronic kidney disease",
+          "tableRow": "CKD",
+          "given": {
+            "present": [
+              2526,
+              21935
+            ],
+            "absent": [
+              543,
+              21935
+            ]
+          }
+        },
+        {
+          "code": "J44",
+          "phenotype": "Chronic obstructive pulmonary disease (study definition includes spirometry)",
+          "tableRow": "COPD",
+          "given": {
+            "present": [
+              2478,
+              21935
+            ],
+            "absent": [
+              696,
+              21935
+            ]
+          }
+        }
+      ],
+      "endpointKind": "co_prevalence",
+      "unit": "people"
+    },
+    {
+      "id": "cprd_gold_2014_matched_prevalence",
+      "paperId": "zghebi_2020",
+      "direction": "condition_given_t2d",
+      "cohortLabel": "England CPRD GOLD matched cohort, 2014",
+      "population": "Adults aged 16 or older with recently diagnosed T2D in English general practices, with up to five diabetes-free comparators matched on age, sex, and practice.",
+      "timeWindow": "Condition recorded in or before 2014 among patients contributing throughout 2014. Study definitions applied additional rules for selected diagnoses.",
+      "design": "Matched prevalence study",
+      "table": "Table 1",
+      "groups": {
+        "present": "Participants with diagnosed type 2 diabetes",
+        "absent": "Matched diabetes-free comparators"
+      },
+      "mapping": "The ICD-10-CM code is a catalog anchor for the clinical phenotype measured in the study. The source definition governs both conditional rows.",
+      "limitations": "Reported fractions are rounded in the paper. The matched prevalence describes recorded disease history in that year. Use the cited clinical phenotype and cohort for interpretation.",
+      "rows": [
+        {
+          "code": "J45",
+          "phenotype": "Asthma",
+          "tableRow": "2014 rows, Asthma column",
+          "given": {
+            "present": 0.085,
+            "absent": 0.059
+          }
+        },
+        {
+          "code": "J44",
+          "phenotype": "Chronic obstructive pulmonary disease",
+          "tableRow": "2014 rows, COPD column",
+          "given": {
+            "present": 0.059,
+            "absent": 0.041
+          }
+        },
+        {
+          "code": "E03",
+          "phenotype": "Hypothyroidism",
+          "tableRow": "2014 rows, Hypothyroidism column",
+          "given": {
+            "present": 0.067,
+            "absent": 0.047
+          }
+        },
+        {
+          "code": "M19",
+          "phenotype": "Osteoarthritis",
+          "tableRow": "2014 rows, OA column",
+          "given": {
+            "present": 0.184,
+            "absent": 0.16
+          }
+        },
+        {
+          "code": "N18",
+          "phenotype": "Chronic kidney disease",
+          "tableRow": "2014 rows, CKD column",
+          "given": {
+            "present": 0.082,
+            "absent": 0.054
+          }
+        },
+        {
+          "code": "F20",
+          "phenotype": "Schizophrenia",
+          "tableRow": "2014 rows, Schizophrenia column",
+          "given": {
+            "present": 0.012,
+            "absent": 0.005
+          }
+        },
+        {
+          "code": "F41",
+          "phenotype": "Anxiety",
+          "tableRow": "2014 rows, Anxiety column",
+          "given": {
+            "present": 0.056,
+            "absent": 0.042
+          }
+        },
+        {
+          "code": "F32",
+          "phenotype": "Depression",
+          "tableRow": "2014 rows, Depression column",
+          "given": {
+            "present": 0.124,
+            "absent": 0.077
+          }
+        },
+        {
+          "code": "G40",
+          "phenotype": "Epilepsy",
+          "tableRow": "2014 rows, Epilepsy column",
+          "given": {
+            "present": 0.007,
+            "absent": 0.008
+          }
+        },
+        {
+          "code": "E78",
+          "phenotype": "Hyperlipidaemia",
+          "tableRow": "2014 rows, Hyperlipidaemia column",
+          "given": {
+            "present": 0.239,
+            "absent": 0.129
+          }
+        },
+        {
+          "code": "I48",
+          "phenotype": "Atrial fibrillation",
+          "tableRow": "2014 rows, AF column",
+          "given": {
+            "present": 0.055,
+            "absent": 0.036
+          }
+        },
+        {
+          "code": "I50",
+          "phenotype": "Congestive heart failure",
+          "tableRow": "2014 rows, CHF column",
+          "given": {
+            "present": 0.035,
+            "absent": 0.016
+          }
+        },
+        {
+          "code": "I10",
+          "phenotype": "Hypertension",
+          "tableRow": "2014 rows, HT column",
+          "given": {
+            "present": 0.52,
+            "absent": 0.284
+          }
+        },
+        {
+          "code": "I73",
+          "phenotype": "Peripheral vascular disease",
+          "tableRow": "2014 rows, PVD column",
+          "given": {
+            "present": 0.025,
+            "absent": 0.012
+          }
+        },
+        {
+          "code": "I21",
+          "phenotype": "Recorded history of myocardial infarction",
+          "tableRow": "2014 rows, MI column",
+          "given": {
+            "present": 0.037,
+            "absent": 0.018
+          }
+        },
+        {
+          "code": "G45",
+          "phenotype": "Transient ischaemic attack",
+          "tableRow": "2014 rows, TIA column",
+          "given": {
+            "present": 0.021,
+            "absent": 0.014
+          }
+        }
+      ],
+      "endpointKind": "co_prevalence",
+      "unit": "people"
+    },
+    {
+      "id": "danish_stroke_registry_2004_2020",
+      "paperId": "hastrup_2024",
+      "direction": "t2d_given_condition",
+      "cohortLabel": "Danish Stroke Registry, 2004–2020",
+      "population": "169,262 eligible ischemic stroke events in Denmark. The study excluded intracerebral hemorrhage and coexisting type 1 diabetes.",
+      "timeWindow": "Documented type 2 diabetes at an eligible ischemic stroke event.",
+      "design": "Nationwide registry study",
+      "table": "Table 1, baseline characteristics",
+      "endpointKind": "co_prevalence",
+      "unit": "stroke events",
+      "groups": {
+        "present": "Eligible ischemic stroke events"
+      },
+      "mapping": "I63 is the catalog anchor for ischemic stroke in the study. The estimate uses all eligible ischemic events and carries no subtype-specific estimate.",
+      "limitations": "The denominator is events. A patient could contribute more than one event. Case ascertainment used registry diagnoses and glucose-lowering treatment history. The study supplies no stroke-free comparator for this estimate.",
+      "rows": [
+        {
+          "code": "I63",
+          "phenotype": "Ischemic stroke event",
+          "tableRow": "Stroke events, n",
+          "excerpt": "The study included 169,262 IS events; 24,479 with co-morbid T2D.",
+          "given": {
+            "present": [
+              24479,
+              169262
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "danish_early_breast_cancer_5y",
+      "paperId": "kjaergaard_2025",
+      "direction": "t2d_given_condition",
+      "cohortLabel": "Danish early-stage breast cancer and matched comparison cohorts",
+      "population": "Danish women aged 30–99 with incident early-stage breast cancer during 1996–2021, plus matched cancer-free women. The study excluded women with prior diabetes or prior cancer, except nonmelanoma skin cancer.",
+      "timeWindow": "Five years of follow-up starting six months after breast cancer diagnosis or the corresponding matched index date.",
+      "design": "Population-based matched cohort",
+      "table": "Figure 1 and Results, overall cumulative incidence",
+      "endpointKind": "cumulative_incidence",
+      "unit": "people",
+      "horizonYears": 5,
+      "landmarkMonths": 6,
+      "groups": {
+        "present": "Eligible early-stage breast cancer survivors",
+        "absent": "Matched eligible cancer-free women"
+      },
+      "mapping": "C50 anchors early-stage breast cancer survivorship in this cohort. Use the stated landmark, horizon, and eligibility.",
+      "limitations": "These are published cumulative incidences accounting for death as a competing event. This estimate describes newly diagnosed type 2 diabetes during follow-up. It does not provide diabetes prevalence at diagnosis.",
+      "rows": [
+        {
+          "code": "C50",
+          "phenotype": "Early-stage breast cancer survivorship",
+          "tableRow": "Five-year estimates, Table S4",
+          "given": {
+            "present": 0.038,
+            "absent": 0.033
+          },
+          "intervals": {
+            "present": [
+              0.037,
+              0.039
+            ],
+            "absent": [
+              0.033,
+              0.034
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

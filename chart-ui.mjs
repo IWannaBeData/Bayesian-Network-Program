@@ -246,6 +246,13 @@ function card(node) {
     node.recordKey && 'Record ' + node.recordKey,
   ].filter(Boolean);
   if (extra.length) row.append(element('p', extra.join(' · ')));
+  if (node.source?.system === 'icd10cm') {
+    const evidence = element('a', 'Review diabetes evidence');
+    evidence.href = './?' + new URLSearchParams({ evidence: node.source.code }) + '#catalog';
+    evidence.target = '_blank';
+    evidence.rel = 'noopener';
+    row.append(evidence);
+  }
   const remove = element('button', 'Remove');
   remove.type = 'button';
   remove.setAttribute('aria-label', 'Remove ' + node.id);
