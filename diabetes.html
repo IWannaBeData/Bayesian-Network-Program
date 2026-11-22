@@ -28,7 +28,11 @@
       <p>Update findings as you work through the differential. The network tracks type 2 diabetes estimates and links each result to its evidence.</p>
     </header>
     <p id="network-load" role="status">Loading the diabetes network…</p>
-    <div id="diabetes-workspace" class="diabetes-workspace" hidden>
+    <div id="diabetes-tabs" class="diabetes-tabs" role="tablist" aria-label="Diabetes Network views" hidden>
+      <a id="case-tab" role="tab" href="#findings" aria-controls="diabetes-workspace" aria-selected="true">Case findings</a>
+      <a id="graph-tab" role="tab" href="#graph" aria-controls="graph-panel" aria-selected="false" tabindex="-1">Network graph</a>
+    </div>
+    <div id="diabetes-workspace" class="diabetes-workspace" role="tabpanel" aria-labelledby="case-tab" hidden>
       <section class="diabetes-panel findings-panel" aria-labelledby="findings-title">
         <h2 id="findings-title">Case findings</h2>
         <p class="diabetes-muted">Use <strong>No</strong> for a documented absence. Findings start as <strong>Unknown</strong>.</p>
@@ -65,6 +69,37 @@
         </section>
       </section>
     </div>
+    <section id="graph-panel" class="diabetes-panel graph-panel" role="tabpanel" aria-labelledby="graph-tab" hidden>
+      <div class="graph-toolbar">
+        <div>
+          <h2>Study connections</h2>
+          <p class="diabetes-muted">Select a node to see its current value and sources.</p>
+        </div>
+        <div class="graph-scope">
+          <label for="graph-scope">Show connections for</label>
+          <select id="graph-scope"></select>
+        </div>
+      </div>
+      <div class="graph-layout">
+        <div class="graph-scroll" role="region" aria-label="Scrollable network diagram" tabindex="0">
+          <div class="graph-diagram">
+            <div class="graph-heading" aria-hidden="true"><span>Findings</span><span>Type 2 diabetes endpoints</span></div>
+            <div class="graph-nodes">
+              <svg class="graph-edges" aria-hidden="true" focusable="false"></svg>
+              <div id="graph-findings" class="graph-column" role="group" aria-label="Finding nodes"></div>
+              <div id="graph-endpoints" class="graph-column" role="group" aria-label="Type 2 diabetes endpoint nodes"></div>
+            </div>
+          </div>
+        </div>
+        <aside class="graph-inspector" aria-labelledby="graph-inspector-title">
+          <h3 id="graph-inspector-title">Selected node</h3>
+          <div id="graph-selection"></div>
+        </aside>
+      </div>
+      <p class="graph-key diabetes-muted">Arrowheads show the direction of the study relationship. Dashed lines mark descriptive evidence.</p>
+      <p id="graph-count" class="diabetes-muted" role="status"></p>
+      <p class="diabetes-muted">Browse findings without study connections in <a href="#findings">Case findings</a>.</p>
+    </section>
   </main>
   <footer class="site-footer">
     <div class="wrap">
