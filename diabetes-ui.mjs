@@ -3,6 +3,7 @@ import { loadCatalogRecords } from './catalog-loader.mjs';
 import { createEvidenceReview } from './t2d-evidence.mjs';
 import { diagnosisSearchTerms } from './pubmed-query.mjs';
 import { readChartCase } from './chart-network.mjs';
+import { createDiabetesGraph } from './diabetes-graph.mjs';
 import {
   DIABETES_CASE_KEY, applyDiabetesOverrides, compileDiabetesNetwork, evaluateDiabetes,
   readChartObservations, setDiabetesObservation,
@@ -19,6 +20,7 @@ const count = new Intl.NumberFormat('en-US');
 const defaultCohort = 'kangbuk_samsung_gdm_nafld_5y';
 let network;
 let model;
+let graph;
 let observations = new Map();
 let chartObservations = new Map();
 let chartOrigins = new Map();
@@ -252,6 +254,26 @@ function displayResult(result) {
   return Number.isFinite(result.probability) ? percent.format(result.probability) : undefined;
 }
 
+function graphEndpointValue(entry) {
+  const baseline = baselineByCohort.get(entry.id)?.trim();
+  let result;
+  try {
+    result = evaluateDiabetes(network, entry.id, observations, baseline ? Number(baseline) / 100 : null);
+  } catch {
+    return 'Check the scenario baseline';
+  }
+  const display = displayResult(result);
+  if (result.status === 'baseline') return 'Baseline · ' + display;
+  return display ?? {
+    'awaiting-findings': 'Awaiting findings',
+    'baseline-required': 'Baseline needed',
+    'joint-unavailable': 'Individual updates available',
+    'missing-row': 'No matching study row',
+    incompatible: 'Incompatible scenario',
+    reference: 'Descriptive evidence',
+  }[result.status];
+}
+
 function renderRelatedEstimates() {
   const list = get('related-estimates');
   const rows = [];
@@ -407,12 +429,27 @@ function loadCase() {
 
 function followProvenanceLink() {
   const { hash } = location;
+  const showGraph = hash === '#graph';
+  for (const [id, active] of [['case-tab', !showGraph], ['graph-tab', showGraph]]) {
+    const tab = get(id);
+    tab.setAttribute('aria-selected', String(active));
+    tab.tabIndex = active ? 0 : -1;
+    get(tab.getAttribute('aria-controls')).hidden = !active;
+  }
+  if (showGraph) {
+    graph.update(model.id, observations);
+    return;
+  }
   if (hash.startsWith('#estimate-')) {
     const id = hash.slice('#estimate-'.length);
     if (!network.models.has(id)) return;
     cohortPicker.value = id;
     selectCohort();
-    get('diabetes-provenance').querySelector('details')?.setAttribute('open', '');
+    const details = get('diabetes-provenance').querySelector('details');
+    if (details) {
+      details.open = true;
+      details.querySelector('summary')?.focus({ preventScroll: true });
+    }
     get('estimate-title').scrollIntoView();
     saveNetworkCase();
   } else if (hash.startsWith('#node-')) {
@@ -426,6 +463,7 @@ function followProvenanceLink() {
     }
     const row = get('node-' + id);
     row.querySelector('details').open = true;
+    row.querySelector('summary').focus({ preventScroll: true });
     row.scrollIntoView();
   }
 }
@@ -438,6 +476,7 @@ async function initialize() {
   ]);
   const review = createEvidenceReview(indexCatalog(records), source, claims);
   network = compileDiabetesNetwork(records, review);
+  graph = createDiabetesGraph(get('graph-panel'), network, graphEndpointValue);
   searchable = [...network.nodes.values()].filter(node => node.kind !== 'outcome').map(node => [
     node.id, [node.label, node.code, node.code?.replace('.', ''), node.id,
       ...(diagnosisSearchTerms[node.code?.replace('.', '')]?.synonyms ?? [])].filter(Boolean).join(' ').toLowerCase(),
@@ -475,9 +514,21 @@ async function initialize() {
   get('network-summary').textContent = count.format(network.nodes.size - network.models.size) +
     ' finding nodes · ' + count.format(network.models.size) + ' study endpoints';
   get('network-load').hidden = true;
-  get('diabetes-workspace').hidden = false;
+  get('diabetes-tabs').hidden = false;
   followProvenanceLink();
 
+  get('diabetes-tabs').addEventListener('keydown', event => {
+    const tabs = [...get('diabetes-tabs').querySelectorAll('[role="tab"]')];
+    const index = tabs.indexOf(event.target);
+    if (index < 0) return;
+    const next = {
+      ArrowLeft: 1 - index, ArrowRight: 1 - index, Home: 0, End: tabs.length - 1, ' ': index,
+    }[event.key];
+    if (next === undefined) return;
+    event.preventDefault();
+    tabs[next].focus();
+    tabs[next].click();
+  });
   window.addEventListener('hashchange', followProvenanceLink);
   window.addEventListener('pageshow', event => {
     if (event.persisted) {

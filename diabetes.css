@@ -2,12 +2,16 @@
 .diabetes-intro h1 { max-width: none; font-size: clamp(2.25rem, 1.5rem + 2.7vw, 3.85rem); }
 .diabetes-intro p { margin-top: 0.7rem; color: var(--muted); }
 #network-load { margin-top: 1.2rem; }
+.diabetes-tabs { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-top: 1.5rem; border-bottom: 1px solid var(--rule); }
+.diabetes-tabs a { padding: 0.45rem 0.12rem; border-bottom: 3px solid transparent; color: var(--muted); font-weight: 650; text-decoration: none; }
+.diabetes-tabs a:hover { color: var(--brand); }
+.diabetes-tabs a[aria-selected="true"] { color: var(--brand); border-color: var(--brand); }
 .diabetes-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: start;
   gap: 1.25rem;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
 }
 .diabetes-panel { min-width: 0; padding: clamp(1rem, 2vw, 1.45rem); background: var(--white); border: 1px solid var(--rule); border-radius: 0.65rem; }
 .diabetes-panel h2 { font-family: inherit; font-size: 1.32rem; letter-spacing: -0.025em; }
@@ -53,9 +57,74 @@
 .related-estimates { margin-top: 1rem; border-top: 1px solid var(--rule); padding-top: 0.85rem; }
 .related-estimates ul { padding-left: 1.2rem; margin-block: 0.45rem 0; }
 .related-estimates li + li { margin-top: 0.4rem; }
+.graph-panel { margin-top: 1rem; }
+.graph-toolbar { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.graph-toolbar p { margin-top: 0.3rem; }
+.graph-scope { flex: 0 1 25rem; min-width: 0; }
+.graph-scope label { margin-bottom: 0.2rem; }
+.graph-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(12.5rem, 0.36fr); gap: 0.85rem; margin-top: 0.9rem; }
+.graph-scroll {
+  display: flex;
+  flex-direction: column;
+  max-height: min(65vh, 37rem);
+  overflow: auto;
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  background: var(--paper) radial-gradient(#d1dfd7 0.8px, transparent 0.8px) 0 0 / 17px 17px;
+}
+.graph-diagram { flex: 1; display: flex; flex-direction: column; min-width: 29rem; --node-width: 36%; }
+.graph-heading {
+  position: sticky;
+  z-index: 2;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0.85rem;
+  background: var(--soft);
+  border-bottom: 1px solid var(--rule);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.graph-heading span { width: var(--node-width); }
+.graph-nodes { flex: 1; position: relative; display: flex; justify-content: space-between; min-height: 10rem; padding: 0.85rem; }
+.graph-column { display: flex; flex-direction: column; justify-content: space-around; gap: 0.65rem; width: var(--node-width); z-index: 1; }
+.graph-edges { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.graph-edges path.relationship { fill: none; stroke: #58746b; stroke-width: 2; }
+.graph-edges path.descriptive { stroke-dasharray: 5 4; }
+.graph-edges path.connected { stroke: var(--brand); stroke-width: 3; }
+.graph-edges path.muted { opacity: 0.48; }
+button.graph-node {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.52rem 0.64rem;
+  text-align: left;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  color: var(--ink);
+  border-color: #b2c8bc;
+}
+.graph-column:last-child .graph-node { background-color: #f0f7f2; }
+button.graph-node[aria-pressed="true"] { border-color: var(--brand); box-shadow: 0 0 0 1px var(--brand); }
+.graph-node small { font-size: 0.76rem; font-weight: 650; color: var(--muted); }
+.graph-node small[data-state="present"] { color: var(--brand); }
+.graph-node small[data-state="absent"] { color: #834633; }
+.graph-inspector { align-self: start; border: 1px solid var(--rule); border-radius: 0.5rem; padding: 0.8rem 0.9rem; }
+.graph-inspector h3 { font-size: 0.8rem; color: var(--muted); }
+#graph-selection { margin-top: 0.35rem; overflow-wrap: anywhere; }
+#graph-selection strong { display: block; line-height: 1.3; }
+#graph-selection p { margin-block: 0.42rem; }
+#graph-selection ul { padding-left: 1.2rem; margin: 0.18rem 0 0; font-size: 0.85rem; }
+#graph-selection li + li { margin-top: 0.18rem; }
+.graph-key { margin-top: 0.75rem; }
 @media (max-width: 760px) {
   .diabetes-workspace { grid-template-columns: minmax(0, 1fr); }
   .estimate-panel { grid-row: 1; }
+  .graph-layout { grid-template-columns: minmax(0, 1fr); }
+  .graph-scroll { max-height: 48vh; }
+  .graph-diagram { min-width: 0; --node-width: 42%; }
+  .graph-heading, .graph-nodes { padding-inline: 0.45rem; }
+  button.graph-node { padding-inline: 0.45rem; }
 }
 @media (max-width: 390px) {
   .finding-heading { grid-template-columns: minmax(0, 1fr); }
