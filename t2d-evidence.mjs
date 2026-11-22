@@ -25,9 +25,31 @@ function readProbability(input) {
   return { probability: numerator / denominator, numerator, denominator };
 }
 
+function validateConditioning(cohort) {
+  const conditioning = cohort.conditioning;
+  if (!conditioning) return;
+  const parents = Object.keys(conditioning.parents);
+  const states = Object.entries(conditioning.states);
+  const signatures = new Set();
+  for (const [state, assignment] of states) {
+    const values = parents.map(parent => assignment[parent]);
+    if (!Object.hasOwn(cohort.groups, state) || Object.keys(assignment).length !== parents.length ||
+        values.some(value => value !== 'present' && value !== 'absent')) {
+      throw new Error('Invalid joint conditioning state for ' + cohort.id);
+    }
+    signatures.add(values.join('|'));
+  }
+  if (cohort.direction !== T2D_GIVEN_CONDITION || !parents.length ||
+      states.length !== Object.keys(cohort.groups).length ||
+      signatures.size !== states.length || signatures.size !== 2 ** parents.length) {
+    throw new Error('Joint conditioning states must cover the parent combinations for ' + cohort.id);
+  }
+}
+
 function indexProbabilityStudies(reviewData, catalogIndex) {
   const results = new Map();
   for (const cohort of reviewData.cohorts) {
+    validateConditioning(cohort);
     const paper = reviewData.papers[cohort.paperId];
     if (!paper?.pdf || !cohort.table) throw new Error('Missing source for ' + cohort.id);
     for (const row of cohort.rows) {
@@ -52,7 +74,7 @@ function indexProbabilityStudies(reviewData, catalogIndex) {
         variableName: record.variableName,
         code: record.code,
         phenotype: row.phenotype,
-        phenotypeId: cohort.id + '__' + record.variableName,
+        phenotypeId: cohort.conditioning?.id ?? cohort.id + '__' + record.variableName,
         mapping: row.mapping ?? cohort.mapping,
         cohort: cohortInfo,
         paper: { id: cohort.paperId, ...paper },
@@ -64,7 +86,10 @@ function indexProbabilityStudies(reviewData, catalogIndex) {
             const group = cohort.groups[state];
             const value = 'denominator' in estimate
               ? estimate.numerator.toLocaleString('en-US') + ' / ' + estimate.denominator.toLocaleString('en-US')
-              : percent(estimate.reportedFraction);
+              : row.sourceScale
+                ? (estimate.reportedFraction * row.sourceScale).toLocaleString('en-US', { maximumFractionDigits: 3 }) +
+                  ' per ' + row.sourceScale.toLocaleString('en-US') + ' people (' + percent(estimate.reportedFraction) + ')'
+                : percent(estimate.reportedFraction);
             const ci = estimate.confidenceInterval95;
             return group + ' · ' + value + (ci ? ' (95% CI ' + ci.map(percent).join(' to ') + ')' : '');
           }),
@@ -172,10 +197,14 @@ export function pubmedQuery(record) {
   return { term, url: 'https://pubmed.ncbi.nlm.nih.gov/?' + new URLSearchParams({ term }) };
 }
 
-export function getConditionalEvidence(review, { variableName, cohortId, direction, givenState }) {
-  const candidate = review.probabilities.get(variableName)?.find(entry =>
+function findEstimate(review, { variableName, cohortId, direction }) {
+  return review.probabilities.get(variableName)?.find(entry =>
     entry.cohort.id === cohortId && entry.cohort.direction === direction
   );
+}
+
+export function getConditionalEvidence(review, { variableName, cohortId, direction, givenState }) {
+  const candidate = findEstimate(review, { variableName, cohortId, direction });
   if (!candidate || !Object.hasOwn(candidate.estimates, givenState)) {
     return { status: 'unavailable', variableName, cohortId, direction, givenState };
   }
@@ -198,6 +227,10 @@ export function getConditionalEvidence(review, { variableName, cohortId, directi
       landmarkMonths: candidate.cohort.landmarkMonths ?? null,
     },
     givenState,
+    ...(candidate.cohort.conditioning && {
+      parentStates: candidate.cohort.conditioning.states[givenState],
+      conditioningParents: candidate.cohort.conditioning.parents,
+    }),
     givenLabel: candidate.cohort.groups[givenState],
     cohort: candidate.cohort,
     source: candidate.paper,
@@ -206,17 +239,27 @@ export function getConditionalEvidence(review, { variableName, cohortId, directi
 }
 
 export function getConditionalRows(review, query) {
-  const present = getConditionalEvidence(review, { ...query, givenState: 'present' });
-  const absent = getConditionalEvidence(review, { ...query, givenState: 'absent' });
-  if (present.status !== 'study_estimate' || absent.status !== 'study_estimate') {
+  const candidate = findEstimate(review, query);
+  if (candidate?.cohort.endpointKind === 'observed_followup_fraction') {
+    return { status: 'incomplete', reason: 'requires_fixed_followup', rows: [] };
+  }
+
+  const conditioning = candidate?.cohort.conditioning;
+  const states = conditioning ? Object.keys(conditioning.states) : ['present', 'absent'];
+  const estimates = states.map(givenState => getConditionalEvidence(review, { ...query, givenState }));
+  if (estimates.some(estimate => estimate.status !== 'study_estimate')) {
     return { status: 'incomplete', rows: [] };
   }
+
+  const [first] = estimates;
   return {
     status: 'study_estimate',
-    outcomeId: present.outcomeId,
-    givenId: present.givenId,
-    rows: [present, absent].map(estimate => ({
+    outcomeId: first.outcomeId,
+    givenId: first.givenId,
+    ...(conditioning && { conditioningParents: conditioning.parents }),
+    rows: estimates.map(estimate => ({
       givenState: estimate.givenState,
+      ...(conditioning && { parentStates: estimate.parentStates }),
       present: estimate.probability,
       absent: 1 - estimate.probability,
       evidence: estimate,

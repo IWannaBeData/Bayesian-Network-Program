@@ -107,6 +107,14 @@
           <li><a href="?evidence=I63#catalog" data-evidence-code="I63">Ischemic stroke</a> · Type 2 diabetes was documented in 24,479 of 169,262 eligible Danish stroke events. <a href="https://vbn.aau.dk/ws/files/741351653/Hastrup_et_al._2024_._Type_2_diabetes_mellitus_in_patients_with_ischemic_stroke_-_A_nationwide_study.pdf">Hastrup et al. PDF</a></li>
           <li><a href="?evidence=C50#catalog" data-evidence-code="C50">Early-stage breast cancer</a> · The Danish study estimated five-year diabetes incidence of 3.8% in eligible survivors and 3.3% in matched cancer-free women. <a href="https://europepmc.org/articles/PMC11884854?pdf=render">Kjærgaard et al. PDF</a></li>
         </ul>
+        <h3>Gestational diabetes and fatty liver</h3>
+        <p>In the Kangbuk Samsung cohort, the five-year cumulative incidence of type 2 diabetes was 1.09% with neither exposure, 2.89% with prior gestational diabetes alone, 10.23% with fatty liver alone, and 22.92% with both. The evidence record includes the two-year estimates and the four joint conditioning states.</p>
+        <p class="sources"><a href="?evidence=Z86.32#catalog" data-evidence-code="Z86.32">Gestational diabetes history</a> · <a href="?evidence=K76.0#catalog" data-evidence-code="K76.0">Fatty liver</a> · <a href="https://www.pure.ed.ac.uk/ws/portalfiles/portal/345652066/230428_EJEP_D_22_01564_AAM.pdf">Cho et al. (2023) PDF</a></p>
+        <ul>
+          <li><a href="?evidence=I21#catalog" data-evidence-code="I21">Acute myocardial infarction</a> · Evidence from the French FAST-MI registry and US linked claims, plus recorded prior MI in the matched UK cohort.</li>
+          <li><a href="?evidence=E28.2#catalog" data-evidence-code="E28.2">Polycystic ovary syndrome</a> · Baseline type 2 diabetes prevalence in the age- and BMI-matched UK Biobank groups.</li>
+          <li><a href="?evidence=G47.33#catalog" data-evidence-code="G47.33">Obstructive sleep apnea</a> · Recorded new diabetes cases during observed follow-up in a US cohort.</li>
+        </ul>
         <h3>Review and extraction</h3>
         <p>Search by diagnosis name, synonyms, and code plus type 2 diabetes. Prefer cohorts or population surveys with an explicit diabetes definition, an interpretable denominator, and a stated time window. Retain useful relative measures alongside their comparison group and report whether the paper supplies a conditional probability. The condition-level PubMed links open a reproducible starting query for further screening.</p>
         <p>Use each estimate only for its study’s clinical definition and study population. An anatomical or severity subtype needs evidence for its own definition. An odds ratio, hazard ratio, or relative risk does not itself give either conditional probability. Check transportability and calibration before fitting a network for a different population.</p>
@@ -163,7 +171,7 @@
               <tr><th scope="row"><code>draftObservation(record, windowId)</code></th><td>Available now. Returns a network-ready observation definition keyed by its code and window, with an empty parent list and an unset parameter set.</td></tr>
               <tr><th scope="row"><code>createChartNode(fieldId, input, terminology)</code></th><td>Available in <a href="./chart-network.mjs">chart-network.mjs</a>. Creates a draft node with a recorded value, stable variable name, chart context and an unset parameter set.</td></tr>
               <tr><th scope="row"><code>getConditionalEvidence(review, query)</code></th><td>Returns a study-specific estimate with the source extract, PDF and endpoint for the requested direction and conditioning state. <a href="./t2d-evidence.mjs">Evidence module</a></td></tr>
-              <tr><th scope="row"><code>getConditionalRows(review, query)</code></th><td>Returns a pair of research parameter rows when a study provides both conditioning states.</td></tr>
+              <tr><th scope="row"><code>getConditionalRows(review, query)</code></th><td>Returns research parameter rows when a study provides every conditioning state and a defined endpoint. Joint rows include each parent’s state.</td></tr>
               <tr><th scope="row"><code>compileNetwork(definition, parameterSet)</code></th><td>Planned. Validate window definitions, DAG topology, and conditional probability distributions. Reject inference requests when required distributions are unset.</td></tr>
               <tr><th scope="row"><code>infer(queryIds, evidence, asOf, horizon)</code></th><td>Planned. Return marginals for the pinned model version with the inference method, evidence used, provenance, and an unavailable status where useful estimates cannot be computed.</td></tr>
             </tbody>

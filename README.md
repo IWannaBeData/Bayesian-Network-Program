@@ -25,7 +25,7 @@ const node = draftObservation(code, 'prior_history');
 
 Open the Type 2 diabetes evidence column in the catalog to see study estimates, table extracts, PDFs, and a PubMed query for the exact variable. The Austrian nationwide claims supplement is indexed using same-code category anchors. Each row retains the study's age-band label, relative risk, confidence interval and CSV row. Check the original code definitions, cohort selection and multiple-testing methods when interpreting it. Findings for a category remain attached to that category.
 
-The [evidence manifest](evidence/t2d-review.json) holds the targeted study extracts and all citations. Three publisher PDFs and the claims supplement are archived here. The other three papers link to open full-paper PDF copies at their publisher or institutional archive. The public PDFs cover every cited study in the evidence manifest.
+The [evidence manifest](evidence/t2d-review.json) holds the targeted study extracts and all citations. Three publisher PDFs and the claims supplement are archived here. Other studies link to open full-paper PDF copies at a publisher or research archive. The public PDFs cover every cited study in the evidence manifest.
 
 ```js
 import { createEvidenceReview, getConditionalEvidence, getConditionalRows,
@@ -45,7 +45,7 @@ const conditional = getConditionalRows(review, query);
 // conditional.status === 'incomplete' because the study has no lung cancer–free group.
 ```
 
-`getConditionalRows` returns both conditioning rows when a compatible study reports the two comparison groups. Each result retains the study's phenotype, age or eligibility constraints, endpoint, and time window. Match these to the intended network nodes before calibration. Relative measures stay in the evidence catalog. The patient network's parameters remain unset.
+`getConditionalRows` returns research parameter rows when the study reports every conditioning state. For example, use `icd10cm_z8632`, `kangbuk_samsung_gdm_nafld_5y` and `T2D_GIVEN_CONDITION` to retrieve the four joint rows with `parentStates`. The fatty liver anchor `icd10cm_k760` links to the same outcome and conditioning IDs. Use `givenState: 'both'` to retrieve the single estimate for both exposures. Fractions observed across variable follow-up can be read with `getConditionalEvidence`. They retain an `observed_followup_fraction` endpoint and have no fixed-horizon parameter rows. Each result retains the study's phenotype, age or eligibility constraints, endpoint, and time window. Match these to the intended network nodes before calibration. Relative measures stay in the evidence catalog. The patient network's parameters remain unset.
 
 Run `node scripts/export-t2d-screening.mjs > t2d-screening.jsonl` to generate a screening record for every catalog entry, including the code version, PubMed query and any direct evidence linkage. The query matches the official title and code. Add clinical synonyms and verify study eligibility when reviewing individual conditions. An open review status means the exact variable still has no linked extract. Screening all individual codes is in progress.
 

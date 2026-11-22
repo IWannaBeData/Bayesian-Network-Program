@@ -69,6 +69,82 @@
       "licenseUrl": "https://creativecommons.org/licenses/by-nc/4.0/",
       "pdf": "https://europepmc.org/articles/PMC11884854?pdf=render",
       "pdfKind": "Europe PMC full-paper PDF"
+    },
+    "cho_2023": {
+      "license": "Institutional archive terms",
+      "licenseUrl": "https://www.ed.ac.uk/information-services/research-support/research-information-management/edinburgh-research-explorer",
+      "citation": "Cho Y, Chang Y, Ryu S, Wild SH, Byrne CD. European Journal of Epidemiology. 2023.",
+      "title": "Synergistic effect of non-alcoholic fatty liver disease and history of gestational diabetes to increase risk of type 2 diabetes",
+      "doi": "10.1007/s10654-023-01016-1",
+      "pmid": "37253998",
+      "article": "https://doi.org/10.1007/s10654-023-01016-1",
+      "pdf": "https://www.pure.ed.ac.uk/ws/portalfiles/portal/345652066/230428_EJEP_D_22_01564_AAM.pdf",
+      "pdfKind": "University of Edinburgh accepted manuscript PDF"
+    },
+    "peramaki_2023": {
+      "license": "CC BY-NC-ND 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+      "citation": "Perämäki R, Gissler M, Ollila MM, et al. Diabetes Epidemiology and Management. 2023;10:100124.",
+      "title": "The risk of developing type 2 diabetes after gestational diabetes: A registry study from Finland",
+      "doi": "10.1016/j.deman.2022.100124",
+      "article": "https://doi.org/10.1016/j.deman.2022.100124",
+      "pdf": "https://www.utupub.fi/bitstream/handle/10024/188677/1-s2.0-S2666970622000749-main.pdf?isAllowed=y&sequence=1",
+      "pdfKind": "University of Turku full-paper PDF"
+    },
+    "henney_2025": {
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "citation": "Henney AE, Gillespie CS, Lai JYM, et al. Journal of Clinical Endocrinology & Metabolism. 2025;110(5):1235–1246.",
+      "title": "Risk of Type 2 Diabetes, MASLD and Cardiovascular Disease in People Living With Polycystic Ovary Syndrome",
+      "doi": "10.1210/clinem/dgae481",
+      "pmid": "38986027",
+      "article": "https://doi.org/10.1210/clinem/dgae481",
+      "pdf": "https://wrap.warwick.ac.uk/id/eprint/186937/1/dgae481.pdf",
+      "pdfKind": "University of Warwick full-paper PDF"
+    },
+    "bouisset_2024": {
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "citation": "Bouisset F, Bataille V, Schiele F, et al. Frontiers in Cardiovascular Medicine. 2024;11:1401569.",
+      "title": "Type 2 diabetes mellitus in acute myocardial infarction: a persistent significant burden on long-term mortality",
+      "doi": "10.3389/fcvm.2024.1401569",
+      "pmid": "38932992",
+      "article": "https://www.frontiersin.org/journals/cardiovascular-medicine/articles/10.3389/fcvm.2024.1401569/full",
+      "pdf": "https://www.frontiersin.org/journals/cardiovascular-medicine/articles/10.3389/fcvm.2024.1401569/pdf",
+      "pdfKind": "Publisher full-paper PDF"
+    },
+    "nurmohamed_2025": {
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "citation": "Nurmohamed NS, Ngo-Metzger Q, Taub PR, et al. European Heart Journal. 2025;46(38):3762–3772.",
+      "title": "First myocardial infarction: risk factors, symptoms, and medical therapy",
+      "doi": "10.1093/eurheartj/ehaf390",
+      "pmid": "40605456",
+      "article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC12500329/",
+      "pdf": "https://europepmc.org/articles/PMC12500329?pdf=render",
+      "pdfKind": "Europe PMC full-paper PDF"
+    },
+    "nagayoshi_2016": {
+      "license": "PMC author manuscript terms",
+      "licenseUrl": "https://pmc.ncbi.nlm.nih.gov/about/copyright/",
+      "citation": "Nagayoshi M, Punjabi NM, Selvin E, et al. Sleep Medicine. 2016;25:156–161.",
+      "title": "Obstructive sleep apnea and incident type 2 diabetes",
+      "doi": "10.1016/j.sleep.2016.05.009",
+      "pmid": "27810258",
+      "article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5102826/",
+      "pdf": "https://europepmc.org/articles/PMC5102826?pdf=render",
+      "pdfKind": "Europe PMC full-paper manuscript PDF"
+    },
+    "kristensen_2024": {
+      "license": "Publisher reuse terms",
+      "licenseUrl": "https://www.dovepress.com/terms.php",
+      "citation": "Kristensen FPB, Nicolaisen SK, Nielsen JS, et al. Clinical Epidemiology. 2024;16:641–654.",
+      "title": "The Danish Centre for Strategic Research in Type 2 Diabetes (DD2) Project Cohort and Biobank from 2010 Through 2023—A Cohort Profile Update",
+      "doi": "10.2147/CLEP.S469958",
+      "pmid": "39345299",
+      "article": "https://pmc.ncbi.nlm.nih.gov/articles/PMC11439366/",
+      "pdf": "https://findresearcher.sdu.dk/ws/portalfiles/portal/273125350/CLEP-469958-the-danish-centre-for-strategic-research-in-type-2-diabetes-.pdf",
+      "pdfKind": "University of Southern Denmark full-paper PDF"
     }
   },
   "claims": {
@@ -454,6 +530,363 @@
             "absent": [
               0.033,
               0.034
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "kangbuk_samsung_gdm_nafld_2y",
+      "paperId": "cho_2023",
+      "cohortLabel": "Kangbuk Samsung Health Study · 2-year cumulative incidence",
+      "population": "97,347 Korean women with at least one previous birth and no diabetes at entry. The study measured NAFLD by ultrasound and ascertained prior gestational diabetes by self-report.",
+      "timeWindow": "2 years after the baseline health screening. Enrollment was 2015–2019 and follow-up ran through December 2020.",
+      "design": "Retrospective screening cohort",
+      "table": "Table 2",
+      "endpointKind": "cumulative_incidence",
+      "horizonYears": 2,
+      "groups": {
+        "neither": "Women with neither prior gestational diabetes nor NAFLD",
+        "gdm_only": "Women with prior gestational diabetes and no NAFLD",
+        "nafld_only": "Women with NAFLD and no prior gestational diabetes",
+        "both": "Women with both prior gestational diabetes and NAFLD"
+      },
+      "conditioning": {
+        "id": "kangbuk_samsung__prior_gdm_and_nafld",
+        "parents": {
+          "prior_gestational_diabetes": "icd10cm_z8632",
+          "ultrasound_defined_nafld": "icd10cm_k760"
+        },
+        "states": {
+          "neither": {
+            "prior_gestational_diabetes": "absent",
+            "ultrasound_defined_nafld": "absent"
+          },
+          "gdm_only": {
+            "prior_gestational_diabetes": "present",
+            "ultrasound_defined_nafld": "absent"
+          },
+          "nafld_only": {
+            "prior_gestational_diabetes": "absent",
+            "ultrasound_defined_nafld": "present"
+          },
+          "both": {
+            "prior_gestational_diabetes": "present",
+            "ultrasound_defined_nafld": "present"
+          }
+        }
+      },
+      "mapping": "The same joint estimate is linked to Z86.32 (history of gestational diabetes) and K76.0 (fatty liver anchor). The source used ultrasound-defined NAFLD after excluding secondary causes. O24.4 is the pregnancy diagnosis category.",
+      "limitations": "The publication reports cumulative incidence per 1,000 people. These values are converted to probabilities by dividing by 1,000. Each estimate requires both baseline exposure states.",
+      "rows": [
+        {
+          "code": "Z86.32",
+          "phenotype": "Prior gestational diabetes and ultrasound-defined NAFLD",
+          "tableRow": "2-year cumulative incidence per 1,000, four exposure groups",
+          "given": {
+            "neither": 0.0029,
+            "gdm_only": 0.0094,
+            "nafld_only": 0.0409,
+            "both": 0.0916
+          },
+          "sourceScale": 1000
+        },
+        {
+          "code": "K76.0",
+          "phenotype": "Prior gestational diabetes and ultrasound-defined NAFLD",
+          "tableRow": "2-year cumulative incidence per 1,000, four exposure groups",
+          "given": {
+            "neither": 0.0029,
+            "gdm_only": 0.0094,
+            "nafld_only": 0.0409,
+            "both": 0.0916
+          },
+          "sourceScale": 1000
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "kangbuk_samsung_gdm_nafld_5y",
+      "paperId": "cho_2023",
+      "cohortLabel": "Kangbuk Samsung Health Study · 5-year cumulative incidence",
+      "population": "97,347 Korean women with at least one previous birth and no diabetes at entry. The study measured NAFLD by ultrasound and ascertained prior gestational diabetes by self-report.",
+      "timeWindow": "5 years after the baseline health screening. Enrollment was 2015–2019 and follow-up ran through December 2020.",
+      "design": "Retrospective screening cohort",
+      "table": "Table 2",
+      "endpointKind": "cumulative_incidence",
+      "horizonYears": 5,
+      "groups": {
+        "neither": "Women with neither prior gestational diabetes nor NAFLD",
+        "gdm_only": "Women with prior gestational diabetes and no NAFLD",
+        "nafld_only": "Women with NAFLD and no prior gestational diabetes",
+        "both": "Women with both prior gestational diabetes and NAFLD"
+      },
+      "conditioning": {
+        "id": "kangbuk_samsung__prior_gdm_and_nafld",
+        "parents": {
+          "prior_gestational_diabetes": "icd10cm_z8632",
+          "ultrasound_defined_nafld": "icd10cm_k760"
+        },
+        "states": {
+          "neither": {
+            "prior_gestational_diabetes": "absent",
+            "ultrasound_defined_nafld": "absent"
+          },
+          "gdm_only": {
+            "prior_gestational_diabetes": "present",
+            "ultrasound_defined_nafld": "absent"
+          },
+          "nafld_only": {
+            "prior_gestational_diabetes": "absent",
+            "ultrasound_defined_nafld": "present"
+          },
+          "both": {
+            "prior_gestational_diabetes": "present",
+            "ultrasound_defined_nafld": "present"
+          }
+        }
+      },
+      "mapping": "The same joint estimate is linked to Z86.32 (history of gestational diabetes) and K76.0 (fatty liver anchor). The source used ultrasound-defined NAFLD after excluding secondary causes. O24.4 is the pregnancy diagnosis category.",
+      "limitations": "The publication reports cumulative incidence per 1,000 people. These values are converted to probabilities by dividing by 1,000. Each estimate requires both baseline exposure states.",
+      "rows": [
+        {
+          "code": "Z86.32",
+          "phenotype": "Prior gestational diabetes and ultrasound-defined NAFLD",
+          "tableRow": "5-year cumulative incidence per 1,000, four exposure groups",
+          "given": {
+            "neither": 0.0109,
+            "gdm_only": 0.0289,
+            "nafld_only": 0.1023,
+            "both": 0.2292
+          },
+          "sourceScale": 1000
+        },
+        {
+          "code": "K76.0",
+          "phenotype": "Prior gestational diabetes and ultrasound-defined NAFLD",
+          "tableRow": "5-year cumulative incidence per 1,000, four exposure groups",
+          "given": {
+            "neither": 0.0109,
+            "gdm_only": 0.0289,
+            "nafld_only": 0.1023,
+            "both": 0.2292
+          },
+          "sourceScale": 1000
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "finland_gdm_observed_2006_2020",
+      "paperId": "peramaki_2023",
+      "cohortLabel": "Finnish national birth and health registers",
+      "population": "462,401 women with deliveries in Finland, including 96,353 with gestational diabetes and 366,048 without. Subsequent type 2 diabetes was identified using E11 or T90.",
+      "timeWindow": "Follow-up began at first recorded delivery during 2006–2020. Mean follow-up was 6.86 years with gestational diabetes and 9.07 years without it.",
+      "design": "Nationwide register cohort",
+      "table": "Results and Figure 2",
+      "endpointKind": "observed_followup_fraction",
+      "groups": {
+        "present": "Women with prior gestational diabetes",
+        "absent": "Women without prior gestational diabetes"
+      },
+      "mapping": "Z86.32 is the history anchor. O24.4 marks the pregnancy diagnosis category.",
+      "limitations": "These are observed fractions across unequal follow-up periods. They cannot supply a fixed-horizon conditional distribution.",
+      "rows": [
+        {
+          "code": "Z86.32",
+          "phenotype": "History of gestational diabetes",
+          "tableRow": "Observed diagnoses by history group",
+          "given": {
+            "present": [
+              3995,
+              96353
+            ],
+            "absent": [
+              1375,
+              366048
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "uk_biobank_pcos_baseline_t2d",
+      "paperId": "henney_2025",
+      "cohortLabel": "UK Biobank age- and BMI-matched comparisons",
+      "population": "1,008 women with previous PCOS and 5,017 matched controls. Median age was 61 years. The PCOS definition used diagnostic coding, self-report, or combined clinical or biochemical findings.",
+      "timeWindow": "Type 2 diabetes recorded at UK Biobank baseline assessment.",
+      "design": "Baseline analysis in a matched cohort",
+      "table": "Results, baseline disease prevalence",
+      "endpointKind": "co_prevalence",
+      "groups": {
+        "present": "Participants with previous PCOS",
+        "absent": "Matched participants without known PCOS"
+      },
+      "mapping": "E28.2 anchors study-defined PCOS. The paper's phenotype included qualifying participants without a PCOS code.",
+      "limitations": "The baseline comparison describes a selected, older cohort matched on age and BMI.",
+      "rows": [
+        {
+          "code": "E28.2",
+          "phenotype": "Polycystic ovary syndrome",
+          "tableRow": "Type 2 diabetes (Supplemental Table 2)",
+          "given": {
+            "present": 0.073,
+            "absent": 0.04
+          }
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "france_fast_mi_discharge_survivors_2005_2015",
+      "paperId": "bouisset_2024",
+      "cohortLabel": "French FAST-MI registries, 2005, 2010 and 2015",
+      "population": "9,181 patients with STEMI or non-STEMI who survived the index hospitalization and had a known diabetes status, excluding patients with type 1 diabetes and the 2005 extension sample.",
+      "timeWindow": "Type 2 diabetes status at admission for an eligible acute MI.",
+      "design": "Pooled national registry cohorts",
+      "table": "Figure 1 and Table 1",
+      "endpointKind": "co_prevalence",
+      "groups": {
+        "present": "Eligible acute MI patients who survived hospitalization"
+      },
+      "mapping": "I21 anchors the pooled STEMI and non-STEMI population. The estimate has no subtype-specific result.",
+      "limitations": "Selection required survival to discharge. The study has no MI-free group for this estimate.",
+      "rows": [
+        {
+          "code": "I21",
+          "phenotype": "Acute MI with survival to discharge",
+          "tableRow": "Total analyzed and groups by diabetes status",
+          "given": {
+            "present": [
+              2038,
+              9181
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "us_clarivate_first_recorded_mi_2017_2022",
+      "paperId": "nurmohamed_2025",
+      "cohortLabel": "US Clarivate linked claims and medical records, 2017–2022",
+      "population": "4,657,412 adults with a first recorded MI in the dataset after exclusion of known prior MI. Median age was 70.",
+      "timeWindow": "Type 2 diabetes documented before the first recorded myocardial infarction.",
+      "design": "Retrospective linked-data cohort",
+      "table": "Table 1",
+      "endpointKind": "co_prevalence",
+      "groups": {
+        "present": "Adults with a first recorded MI in the linked dataset"
+      },
+      "mapping": "I21 anchors the study's first recorded MI phenotype.",
+      "limitations": "The fraction is based on existing documentation within the linked database. Out-of-hospital fatal first events and patients without care in the dataset may be missed. The paper provides no MI-free denominator.",
+      "rows": [
+        {
+          "code": "I21",
+          "phenotype": "First recorded myocardial infarction",
+          "tableRow": "Documented standard modifiable risk factors, type 2 diabetes",
+          "given": {
+            "present": [
+              1934636,
+              4657412
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "direction": "t2d_given_condition",
+      "unit": "people",
+      "id": "aric_shhs_osa_observed_1996_2013",
+      "paperId": "nagayoshi_2016",
+      "cohortLabel": "Atherosclerosis Risk in Communities and Sleep Heart Health Study",
+      "population": "1,453 US adults without baseline diabetes, mean age 63 years, with in-home polysomnography and annual follow-up interviews.",
+      "timeWindow": "Sleep testing in 1996–1998 followed by diabetes ascertainment by telephone through 2013. Median follow-up was 13 years.",
+      "design": "Prospective community cohort",
+      "table": "Table 3, total sample",
+      "endpointKind": "observed_followup_fraction",
+      "groups": {
+        "present": "Participants with AHI of at least 5 events per hour",
+        "absent": "Participants with AHI below 5 events per hour"
+      },
+      "mapping": "G47.33 is the obstructive sleep apnea anchor. The present group pools mild (78/418), moderate (48/187) and severe (29/83) apnea strata.",
+      "limitations": "These fractions summarize recorded events during observed follow-up. Severe apnea versus normal had an adjusted hazard ratio of 1.71 (95% CI 1.08–2.71), a separate measure from these fractions.",
+      "rows": [
+        {
+          "code": "G47.33",
+          "phenotype": "Polysomnography-defined obstructive sleep apnea",
+          "tableRow": "Participant and incident diabetes counts by AHI",
+          "given": {
+            "present": [
+              155,
+              688
+            ],
+            "absent": [
+              130,
+              765
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "direction": "condition_given_t2d",
+      "unit": "people",
+      "id": "danish_dd2_enrollment_2010_2023",
+      "paperId": "kristensen_2024",
+      "cohortLabel": "Danish Centre for Strategic Research in Type 2 Diabetes",
+      "population": "11,369 people with recently diagnosed type 2 diabetes enrolled from Danish primary care and hospitals. The kidney estimate uses the subset with qualifying laboratory data.",
+      "timeWindow": "Comorbidity history and measurements at cohort enrollment, 2010–2023.",
+      "design": "National cohort and biobank profile",
+      "table": "Table 2",
+      "endpointKind": "co_prevalence",
+      "groups": {
+        "present": "DD2 participants with recently diagnosed type 2 diabetes"
+      },
+      "limitations": "The study has no comparison group without diabetes at enrollment. The estimates use recorded comorbidities or available tests.",
+      "rows": [
+        {
+          "code": "I50",
+          "phenotype": "Hospital-recorded heart failure",
+          "mapping": "I50 is the broad heart-failure anchor. The estimate uses hospital diagnoses and does not resolve subtype.",
+          "tableRow": "Macrovascular complications, heart failure",
+          "given": {
+            "present": [
+              434,
+              11369
+            ]
+          }
+        },
+        {
+          "code": "I25",
+          "phenotype": "Hospital-recorded ischemic heart disease",
+          "mapping": "I25 is a navigation anchor for a broader hospital-recorded ischemic heart disease phenotype. The paper's row is not a prevalence estimate for the ICD-10-CM I25 code itself.",
+          "tableRow": "Macrovascular complications, ischemic heart disease",
+          "given": {
+            "present": [
+              1431,
+              11369
+            ]
+          }
+        },
+        {
+          "code": "N18",
+          "phenotype": "Kidney disease by eGFR or albuminuria",
+          "mapping": "N18 is a clinical anchor. The paper uses eGFR below 60 mL/min/1.73 m² or urine albumin-creatinine ratio above 30 mg/g. The denominator is 10,417 with data.",
+          "tableRow": "Kidney function, chronic kidney disease",
+          "given": {
+            "present": [
+              2264,
+              10417
             ]
           }
         }

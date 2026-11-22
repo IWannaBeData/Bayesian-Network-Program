@@ -55,12 +55,13 @@ function renderProbability(review, candidate) {
     });
     const inverse = cohort.direction === T2D_GIVEN_CONDITION;
     const outcome = inverse
-      ? cohort.endpointKind === 'cumulative_incidence' ? 'incident type 2 diabetes' : 'documented type 2 diabetes'
+      ? cohort.endpointKind === 'co_prevalence' ? 'documented type 2 diabetes' : 'newly documented type 2 diabetes'
       : candidate.phenotype;
     const row = element('p', '', 'estimate');
     row.append(
       element('strong', formatPercent.format(estimate.probability)),
-      ' with ' + outcome + ' among ' + estimate.givenLabel.toLowerCase(),
+      ' with ' + outcome + ' among ' + estimate.givenLabel.charAt(0).toLowerCase() + estimate.givenLabel.slice(1) +
+        (cohort.endpointKind === 'observed_followup_fraction' ? ' during observed follow-up' : ''),
     );
     section.append(row);
   }
