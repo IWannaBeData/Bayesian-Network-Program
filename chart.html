@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Select clinical chart fields and generate draft variables for a Bayesian network.">
+  <title>Chart variable builder | Bayesian Network Diagnostic Program</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./chart.css">
+  <script type="module" src="./chart-ui.mjs"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./">Bayesian Network<br>Diagnostic Program</a>
+      <nav aria-label="Project pages">
+        <a href="./chart.html" aria-current="page">Chart builder</a>
+        <a href="./#catalog">ICD-10-CM catalog</a>
+        <a href="./#review">Literature review</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main">
+    <section class="chart-intro">
+      <div class="wrap">
+        <h1>Chart variable builder</h1>
+        <p class="lede">Select chart information to generate draft nodes. Each node keeps its variable name, recorded value, and source code when supplied.</p>
+        <p class="chart-note">Use sample data in this demo. Selections stay in this page until you export them.</p>
+      </div>
+    </section>
+    <div class="wrap chart-workspace">
+      <section class="builder-panel" aria-labelledby="select-title">
+        <h2 id="select-title">Select a chart variable</h2>
+        <form id="chart-form">
+          <label for="field-search">Find a field</label>
+          <input id="field-search" type="search" placeholder="Age, medication, smoking, lab…" autocomplete="off">
+          <label for="chart-field">Chart field</label>
+          <select id="chart-field" required></select>
+          <p class="field-help" id="field-help"></p>
+          <div id="variable-controls"></div>
+          <div class="context-grid" id="chart-context">
+            <label>Recorded date <span>(optional)</span><input type="date" name="recordedOn"></label>
+            <label id="record-key-label">Record key <span>(optional)</span>
+              <input name="recordKey" placeholder="e.g. lab_1" autocomplete="off" pattern="[a-z][a-z0-9_]*">
+            </label>
+          </div>
+          <p class="field-help" id="record-key-help">Give fields the same record key to group them under one event. Use different keys for repeated observations on the same day.</p>
+          <p class="variable-preview">Variable <code id="variable-preview"></code></p>
+          <button id="add-chart-node" type="submit" class="button primary">Add to chart</button>
+          <p id="chart-message" class="chart-message" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+      <section class="builder-panel network-panel" aria-labelledby="nodes-title">
+        <header class="panel-header">
+          <div><h2 id="nodes-title">Generated nodes</h2><p id="node-totals" role="status">0 nodes</p></div>
+          <button id="export-chart" type="button" disabled>Export JSON</button>
+        </header>
+        <p id="empty-nodes">Add a chart value to see its node here.</p>
+        <ul id="chart-nodes" class="chart-nodes"></ul>
+        <details id="metadata-panel" hidden>
+          <summary>Chart metadata <span id="metadata-count"></span></summary>
+          <ul id="chart-metadata" class="chart-nodes"></ul>
+        </details>
+        <p class="chart-note">The export includes observed values. Edges and probability parameters are unset.</p>
+      </section>
+    </div>
+    <section class="wrap section chart-reference" aria-labelledby="source-title">
+      <h2 id="source-title">Chart fields and sources</h2>
+      <p class="intro" id="registry-summary"></p>
+      <div class="table-scroll" role="region" aria-label="Chart vendor and standards references" tabindex="0">
+        <table>
+          <thead><tr><th scope="col">Reference</th><th scope="col">Documented chart information</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">athenaOne</th><td>Problems, medications, allergies, vaccines, vitals, labs, documents, and medical, family, social, surgical and pregnancy histories. <a href="https://docs.athenahealth.com/downloads/import-specification-download">Chart import specification</a> · <a href="https://www.athenahealth.com/sites/default/files/media_docs/athenaOne-Service-Description.pdf">Service description</a></td></tr>
+            <tr><th scope="row">eClinicalWorks</th><td>Visit summaries, problems, medications, allergies, immunizations, implants, and check-in information such as questionnaires, insurance and prior hospitalizations. <a href="https://www.eclinicalworks.com/wp-content/uploads/2021/03/eCW-V11-Mandatory-Disclosures-March-2021.pdf">Visit summary documentation</a> · <a href="https://www.eclinicalworks.com/products-services/patient-engagement/check-in/">Check-in fields</a></td></tr>
+            <tr><th scope="row">Epic</th><td>History of present illness, social history, problem records, demographics, document metadata and organization-specific fields. <a href="https://open.epic.com/EHITables/GetTable/_index.htm">Chart data dictionary</a> · <a href="https://open.epic.com/EHITables/GetTable/PATIENT_HPI_INFO.htm">HPI fields</a> · <a href="https://open.epic.com/EHITables/GetTable/PAT_SOCIAL_HX_DOC.htm">Social history</a></td></tr>
+            <tr><th scope="row">USCDI v7</th><td>U.S. reference for chart data classes, including adverse events, orders, care teams, patient preferences, coverage and other clinical information. <a href="https://isp.healthit.gov/all-uscdi-versions">Published USCDI versions</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every completed year from birth through age 140 has a unique ID, from <code>age_0</code> through <code>age_140</code>. Selecting another age in years replaces the earlier age in this chart.</p>
+      <p>Use source codes when available. Each catalog diagnosis uses its existing <code>icd10cm_</code> identifier. A relative’s history carries its own relationship-specific name. Custom entries cover specialty and practice-specific fields.</p>
+      <p class="sources"><a href="https://www.nlm.nih.gov/research/umls/rxnorm/index.html">NLM RxNorm</a> · <a href="https://loinc.org/kb/users-guide/introduction">LOINC user guide</a> · <a href="https://www.cdc.gov/iis/code-sets/index.html">CDC vaccine code sets</a> · <a href="./chart-variables.mjs">Variable definitions</a></p>
+    </section>
+  </main>
+  <footer class="site-footer"><div class="wrap">
+    <span>Bayesian Network Diagnostic Program</span>
+    <a href="https://github.com/IWannaBeData/Bayesian-Network-Program">View the GitHub repository</a>
+  </div></footer>
+</body>
+</html>
