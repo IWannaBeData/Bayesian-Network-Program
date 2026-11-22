@@ -15,6 +15,7 @@
       <a class="brand" href="#main">Bayesian Network<br>Diagnostic Program</a>
       <nav aria-label="Sections">
         <a href="#review">Literature</a>
+        <a href="#diabetes">Type 2 diabetes review</a>
         <a href="#network">Network design</a>
         <a href="./chart.html">Chart builder</a>
         <a href="#catalog">Diagnosis catalog</a>
@@ -50,7 +51,7 @@
     <div class="wrap">
       <section class="section" id="review" aria-labelledby="review-title">
         <h2 id="review-title">Literature review</h2>
-        <p class="intro">This narrative review covers probabilistic diagnosis, inference at scale, longitudinal modeling, and how to evaluate future estimates. Sources were checked on November 21, 2026. The code inventory covers the full pinned release. Disease-specific evidence extraction and parameter estimation are future work.</p>
+        <p class="intro">This narrative review covers probabilistic diagnosis, inference at scale, longitudinal modeling, and how to evaluate future estimates. Sources were checked on November 21, 2026. The code inventory covers the full pinned release. The type 2 diabetes review links extracted study estimates to catalog variables.</p>
 
         <div class="research-grid">
           <article class="research-card">
@@ -84,6 +85,31 @@
             <p class="sources"><a href="https://www.bmj.com/content/385/bmj-2023-078378">Collins et al., TRIPOD+AI 2024</a> · <a href="https://www.bmj.com/content/388/bmj-2024-082505">Moons et al., PROBAST+AI 2025</a></p>
           </article>
         </div>
+      </section>
+
+      <section class="section" id="diabetes" aria-labelledby="diabetes-title">
+        <h2 id="diabetes-title">Type 2 diabetes and other diagnoses</h2>
+        <p class="intro">Open the evidence for a diagnosis to see the outcome, the conditioning event, the cohort, and the source row or excerpt. The first pass combines targeted cohort searches with a nationwide published ICD-10 screen.</p>
+        <p id="evidence-coverage" role="status">Loading review coverage…</p>
+        <div class="research-grid">
+          <article class="research-card">
+            <h3>Type 2 diabetes at lung cancer diagnosis</h3>
+            <p>In the England CPRD Aurum cohort, 14,566 of 69,674 adults with newly recorded lung cancer had pre-existing type 2 diabetes. The fraction is 20.9% within that cohort. Table 1 reports the two group counts.</p>
+            <p class="sources"><a href="./evidence/papers/igbinosa-2025.pdf">Igbinosa et al. (2025) PDF</a> · <a href="?evidence=C34#catalog" data-evidence-code="C34">Open C34 evidence</a></p>
+          </article>
+          <article class="research-card">
+            <h3>ICD-10 overlap across an inpatient population</h3>
+            <p>Klimek and colleagues screened 1,051 three-character diagnoses. Their supplementary CSV reports age-stratified relative risks. The catalog links matching code categories to available rows and retains missing p-values from the source.</p>
+            <p class="sources"><a href="./evidence/papers/klimek-2015.pdf">Klimek et al. (2015) PDF</a> · <a href="./evidence/klimek-2015-s2.csv">Published S2 Data</a></p>
+          </article>
+        </div>
+        <ul class="steps">
+          <li><a href="?evidence=I63#catalog" data-evidence-code="I63">Ischemic stroke</a> · Type 2 diabetes was documented in 24,479 of 169,262 eligible Danish stroke events. <a href="https://vbn.aau.dk/ws/files/741351653/Hastrup_et_al._2024_._Type_2_diabetes_mellitus_in_patients_with_ischemic_stroke_-_A_nationwide_study.pdf">Hastrup et al. PDF</a></li>
+          <li><a href="?evidence=C50#catalog" data-evidence-code="C50">Early-stage breast cancer</a> · The Danish study estimated five-year diabetes incidence of 3.8% in eligible survivors and 3.3% in matched cancer-free women. <a href="https://europepmc.org/articles/PMC11884854?pdf=render">Kjærgaard et al. PDF</a></li>
+        </ul>
+        <h3>Review and extraction</h3>
+        <p>Search by diagnosis name, synonyms, and code plus type 2 diabetes. Prefer cohorts or population surveys with an explicit diabetes definition, an interpretable denominator, and a stated time window. Retain useful relative measures alongside their comparison group and report whether the paper supplies a conditional probability. The condition-level PubMed links open a reproducible starting query for further screening.</p>
+        <p>Use each estimate only for its study’s clinical definition and study population. An anatomical or severity subtype needs evidence for its own definition. An odds ratio, hazard ratio, or relative risk does not itself give either conditional probability. Check transportability and calibration before fitting a network for a different population.</p>
       </section>
 
       <section class="section" id="network" aria-labelledby="network-title">
@@ -136,6 +162,8 @@
               <tr><th scope="row"><code>lookupCode(index, code)</code></th><td>Available in <a href="./catalog.mjs">catalog.mjs</a>. Accepts dotted or undotted ICD-10-CM and returns the release-bound catalog record when present.</td></tr>
               <tr><th scope="row"><code>draftObservation(record, windowId)</code></th><td>Available now. Returns a network-ready observation definition keyed by its code and window, with an empty parent list and an unset parameter set.</td></tr>
               <tr><th scope="row"><code>createChartNode(fieldId, input, terminology)</code></th><td>Available in <a href="./chart-network.mjs">chart-network.mjs</a>. Creates a draft node with a recorded value, stable variable name, chart context and an unset parameter set.</td></tr>
+              <tr><th scope="row"><code>getConditionalEvidence(review, query)</code></th><td>Returns a study-specific estimate with the source extract, PDF and endpoint for the requested direction and conditioning state. <a href="./t2d-evidence.mjs">Evidence module</a></td></tr>
+              <tr><th scope="row"><code>getConditionalRows(review, query)</code></th><td>Returns a pair of research parameter rows when a study provides both conditioning states.</td></tr>
               <tr><th scope="row"><code>compileNetwork(definition, parameterSet)</code></th><td>Planned. Validate window definitions, DAG topology, and conditional probability distributions. Reject inference requests when required distributions are unset.</td></tr>
               <tr><th scope="row"><code>infer(queryIds, evidence, asOf, horizon)</code></th><td>Planned. Return marginals for the pinned model version with the inference method, evidence used, provenance, and an unavailable status where useful estimates cannot be computed.</td></tr>
             </tbody>
@@ -163,6 +191,14 @@
                 <option value="header">Hierarchy headers</option>
               </select>
             </label>
+            <label>Diabetes review
+              <select id="catalog-review" disabled>
+                <option value="">All entries</option>
+                <option value="linked">Evidence on this variable</option>
+                <option value="probability">Cohort probabilities</option>
+                <option value="unreviewed">Needs individual screening</option>
+              </select>
+            </label>
           </div>
           <div class="catalog-toolbar">
             <p id="catalog-status" role="status" aria-live="polite">Loading the official catalog…</p>
@@ -171,7 +207,7 @@
           </div>
           <div class="table-scroll" role="region" aria-label="Catalog results" tabindex="0">
             <table class="catalog-table">
-              <thead><tr><th scope="col">ICD-10-CM</th><th scope="col">Official title</th><th scope="col">Variable name</th><th scope="col">Tags</th><th scope="col">Entry type</th><th scope="col">Chart builder</th></tr></thead>
+              <thead><tr><th scope="col">ICD-10-CM</th><th scope="col">Official title</th><th scope="col">Variable name</th><th scope="col">Tags</th><th scope="col">Entry type</th><th scope="col">Chart builder</th><th scope="col">Type 2 diabetes evidence</th></tr></thead>
               <tbody id="catalog-results"></tbody>
             </table>
           </div>
@@ -182,6 +218,13 @@
           </div>
         </div>
         <p class="sources"><a href="https://www.cms.gov/files/zip/2027-code-descriptions-tabular-order.zip">Official CMS source files</a> · <a href="https://www.cdc.gov/nchs/icd/icd-10-cm/files.html">CDC release history</a> · <a href="./data/manifest.json">Catalog build manifest</a></p>
+        <dialog id="evidence-detail" aria-labelledby="evidence-variable">
+          <header class="evidence-header">
+            <h2 id="evidence-variable">Type 2 diabetes evidence</h2>
+            <button id="evidence-close" type="button">Close</button>
+          </header>
+          <div id="evidence-results"></div>
+        </dialog>
         <noscript><p>The catalog search and CSV export require JavaScript. The official source files are linked above.</p></noscript>
       </section>
     </div>

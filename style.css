@@ -157,7 +157,7 @@ tbody tr:nth-child(even) { background: #f7faf7; }
 }
 .filters {
   display: grid;
-  grid-template-columns: minmax(0, 2fr) minmax(0, 1.15fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.8fr) repeat(3, minmax(0, 1fr));
   align-items: end;
   gap: 0.75rem;
 }
@@ -174,7 +174,7 @@ tbody tr:nth-child(even) { background: #f7faf7; }
 .catalog-toolbar, .pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 0.65rem; }
 .catalog-toolbar { justify-content: space-between; margin-block: 0.8rem 0.65rem; }
 .catalog-toolbar p, .pagination span { font-size: 0.88rem; color: var(--muted); }
-.catalog-table { min-width: 57rem; }
+.catalog-table { min-width: 66rem; }
 .catalog-table td:last-child { white-space: nowrap; }
 .catalog-table th:first-child { width: 7.4rem; }
 .catalog-table td:nth-child(3) { width: 13rem; }
@@ -183,6 +183,44 @@ tbody tr:nth-child(even) { background: #f7faf7; }
 .catalog-table td:nth-child(4) code { display: block; }
 .catalog-table .reportable { color: var(--brand); font-weight: 650; }
 .pagination { justify-content: flex-end; margin-top: 0.7rem; }
+#evidence-coverage {
+  border-left: 3px solid var(--brand);
+  padding: 0.65rem 0.85rem;
+  background: var(--soft);
+}
+#evidence-detail {
+  width: min(47rem, 100% - 1.75rem);
+  max-height: 87vh;
+  padding: clamp(0.9rem, 2vw, 1.5rem);
+  border: 1px solid var(--rule);
+  border-radius: 0.55rem;
+  color: var(--ink);
+  overscroll-behavior: contain;
+}
+#evidence-detail::backdrop { background: rgb(12 30 24 / 56%); }
+.evidence-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+.evidence-header h2 { font-size: clamp(1.5rem, 1rem + 1.6vw, 2.1rem); }
+.evidence-intro { margin-bottom: 0.9rem; }
+.evidence-card {
+  display: grid;
+  gap: 0.5rem;
+  margin-block: 0.9rem;
+  padding: 0.85rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+}
+.cohort-label { color: var(--muted); font-weight: 650; }
+.estimate strong { color: var(--brand); font-size: 1.125rem; }
+.evidence-support { border-left: 3px solid var(--brand); background: var(--soft); padding: 0.6rem 0.75rem; }
+.evidence-support h4, .evidence-support blockquote { margin: 0; }
+.evidence-support blockquote { margin-top: 0.35rem; font-style: italic; }
+.evidence-card table { min-width: 30rem; font-variant-numeric: tabular-nums; }
 .site-footer { border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.88rem; }
 .site-footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.35rem 1rem; padding-block: 1rem; }
 

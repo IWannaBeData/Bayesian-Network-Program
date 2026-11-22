@@ -1,6 +1,10 @@
-import { CHAPTERS } from './catalog.mjs';
+import { CHAPTERS, indexCatalog, lookupCode } from './catalog.mjs';
 import { loadCatalogRecords } from './catalog-loader.mjs';
 
+import { evidenceStatus } from './t2d-evidence.mjs';
+import { loadEvidence, openEvidence } from './evidence-ui.mjs';
+
+const reviewFilter = document.querySelector('#catalog-review');
 const search = document.querySelector('#catalog-search');
 const chapter = document.querySelector('#catalog-chapter');
 const type = document.querySelector('#catalog-type');
@@ -16,6 +20,8 @@ const PAGE_SIZE = 25;
 const number = new Intl.NumberFormat('en-US');
 const chapterNames = new Map(CHAPTERS.map(item => [item.id, item.label]));
 let records = [];
+let byCode;
+let evidenceReview;
 let matches = [];
 let page = 0;
 let filterTimer;
@@ -42,6 +48,37 @@ function codeText(value) {
   return code;
 }
 
+function openVariable(code) {
+  const record = byCode && lookupCode(byCode, code);
+  if (record) openEvidence(record, evidenceReview, openVariable);
+}
+
+function evidenceButton(record) {
+  const labels = {
+    probability: 'Cohort estimate',
+    association: 'Claims data',
+    related: 'Broader category',
+    unreviewed: 'Search literature',
+  };
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = labels[record.reviewStatus];
+  button.setAttribute('aria-label', button.textContent + ' for ' + record.code);
+  button.addEventListener('click', () => openVariable(record.code));
+  return button;
+}
+
+function matchesReview(record, selection) {
+  if (!selection) return true;
+  if (selection === 'linked') {
+    return record.reviewStatus === 'probability' || record.reviewStatus === 'association';
+  }
+  if (selection === 'unreviewed') {
+    return record.reviewStatus === 'unreviewed' || record.reviewStatus === 'related';
+  }
+  return record.reviewStatus === selection;
+}
+
 function renderPage() {
   const start = page * PAGE_SIZE;
   const end = Math.min(start + PAGE_SIZE, matches.length);
@@ -64,6 +101,7 @@ function renderPage() {
     } else {
       cell(row, '—');
     }
+    cell(row, [evidenceButton(record)]);
     fragment.append(row);
   }
 
@@ -85,9 +123,11 @@ function filterCatalog() {
   const terms = search.value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const chapterId = chapter.value;
   const typeValue = type.value;
+  const reviewValue = reviewFilter.value;
   matches = records.filter(record =>
     (!chapterId || record.chapterId === chapterId) &&
     (!typeValue || record.reportable === (typeValue === 'code')) &&
+    matchesReview(record, reviewValue) &&
     terms.every(term => record.searchText.includes(term))
   );
   page = 0;
@@ -100,6 +140,14 @@ search.addEventListener('input', () => {
 });
 chapter.addEventListener('change', filterCatalog);
 type.addEventListener('change', filterCatalog);
+reviewFilter.addEventListener('change', filterCatalog);
+for (const shortcut of document.querySelectorAll('[data-evidence-code]')) {
+  shortcut.addEventListener('click', event => {
+    if (!byCode) return;
+    event.preventDefault();
+    openVariable(shortcut.dataset.evidenceCode);
+  });
+}
 previous.addEventListener('click', () => {
   page -= 1;
   renderPage();
@@ -139,15 +187,21 @@ async function loadCatalog() {
   status.textContent = 'Loading the official catalog…';
   try {
     const loaded = await loadCatalogRecords();
+    byCode = indexCatalog(loaded);
+    evidenceReview = await loadEvidence(byCode);
     records = loaded.map(record => {
       record.searchText = [
         record.code, record.code.replace('.', ''), record.title, record.variableName,
         chapterNames.get(record.chapterId), ...record.tags,
       ].join(' ').toLowerCase();
+      record.reviewStatus = evidenceReview ? evidenceStatus(evidenceReview, record) : 'unreviewed';
       return record;
     });
     for (const control of [search, chapter, type, download]) control.disabled = false;
+    reviewFilter.disabled = !evidenceReview;
     filterCatalog();
+    const evidenceCode = new URLSearchParams(location.search).get('evidence');
+    if (evidenceCode && /^[A-Z][A-Z0-9]{2}(?:\.?[A-Z0-9]{1,4})?$/i.test(evidenceCode)) openVariable(evidenceCode);
   } catch (error) {
     console.error(error);
     status.textContent = 'The catalog could not load. Retry or use the official CMS files linked below.';

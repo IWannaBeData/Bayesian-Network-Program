@@ -1,8 +1,9 @@
 # Bayesian Network Diagnostic Program
 
-This project explores how documented medical history could update the probability of a diagnosis. It includes a literature review, a sparse Bayesian network design, a versioned diagnosis catalog, and a chart variable builder. All model parameters are unset.
+This project explores how documented medical history could update the probability of a diagnosis. It includes a literature review, a sparse Bayesian network design, a versioned diagnosis catalog, and a chart variable builder. Patient network parameters are unset. Study-specific estimates are available with their source data.
 
 - [Literature review](https://iwannabedata.github.io/Bayesian-Network-Program/#review) on probabilistic diagnosis, longitudinal modeling, and validation.
+- [Type 2 diabetes evidence](https://iwannabedata.github.io/Bayesian-Network-Program/#diabetes) with cohort estimates, cited extracts, PDF copies, and a searchable evidence status.
 - [Network design](https://iwannabedata.github.io/Bayesian-Network-Program/#network) with function contracts and inference strategies for sparse graphs with thousands of variables.
 - [Chart variable builder](https://iwannabedata.github.io/Bayesian-Network-Program/chart.html) for selecting chart values and exporting draft nodes.
 - [Diagnosis catalog and CSV export](https://iwannabedata.github.io/Bayesian-Network-Program/#catalog) for all 98,403 entries in the U.S. FY 2027 ICD-10-CM order file, including 74,879 reportable codes and 23,524 hierarchy headers.
@@ -19,6 +20,34 @@ const node = draftObservation(code, 'prior_history');
 // node.id is icd10cm_e119__prior_history
 // node.parameterSetId is null
 ```
+
+## Type 2 diabetes evidence
+
+Open the Type 2 diabetes evidence column in the catalog to see study estimates, table extracts, PDFs, and a PubMed query for the exact variable. The Austrian nationwide claims supplement is indexed using same-code category anchors. Each row retains the study's age-band label, relative risk, confidence interval and CSV row. Check the original code definitions, cohort selection and multiple-testing methods when interpreting it. Findings for a category remain attached to that category.
+
+The [evidence manifest](evidence/t2d-review.json) holds the targeted study extracts and all citations. Three publisher PDFs and the claims supplement are archived here. The other three papers link to open full-paper PDF copies at their publisher or institutional archive. The public PDFs cover every cited study in the evidence manifest.
+
+```js
+import { createEvidenceReview, getConditionalEvidence, getConditionalRows,
+  T2D_GIVEN_CONDITION } from './t2d-evidence.mjs';
+
+// catalogIndex, reviewData and claimsCsv are the catalog code map,
+// the parsed evidence manifest, and the text of the claims supplement.
+const review = createEvidenceReview(catalogIndex, reviewData, claimsCsv);
+const query = {
+  variableName: 'icd10cm_c34',
+  cohortId: 'cprd_aurum_lung_2010_2022',
+  direction: T2D_GIVEN_CONDITION,
+};
+const estimate = getConditionalEvidence(review, { ...query, givenState: 'present' });
+// estimate.probability = 14566 / 69674, with a source, extract, and endpoint.
+const conditional = getConditionalRows(review, query);
+// conditional.status === 'incomplete' because the study has no lung cancer–free group.
+```
+
+`getConditionalRows` returns both conditioning rows when a compatible study reports the two comparison groups. Each result retains the study's phenotype, age or eligibility constraints, endpoint, and time window. Match these to the intended network nodes before calibration. Relative measures stay in the evidence catalog. The patient network's parameters remain unset.
+
+Run `node scripts/export-t2d-screening.mjs > t2d-screening.jsonl` to generate a screening record for every catalog entry, including the code version, PubMed query and any direct evidence linkage. The query matches the official title and code. Add clinical synonyms and verify study eligibility when reviewing individual conditions. An open review status means the exact variable still has no linked extract. Screening all individual codes is in progress.
 
 ## Chart variables and network export
 
