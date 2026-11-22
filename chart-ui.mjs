@@ -1,4 +1,4 @@
-import { CHART_FIELDS, CHART_SECTIONS, AGE_VARIABLES, VOCABULARIES, lookupChartVariable } from './chart-variables.mjs';
+import { CHART_FIELDS, CHART_SECTIONS, AGE_SCALES, ageValueLabel, VOCABULARIES, lookupChartVariable } from './chart-variables.mjs';
 import { buildChartNetwork, createChartNode, FINDING_STATES, selectChartNode } from './chart-network.mjs';
 import { indexCatalog } from './catalog.mjs';
 import { loadCatalogRecords } from './catalog-loader.mjs';
@@ -63,7 +63,7 @@ function fieldMenu(initial) {
   fieldSelect.replaceChildren();
   for (const section of CHART_SECTIONS) {
     const eligible = section.fields.filter(field => {
-      const haystack = (section.label + ' ' + field.label + ' ' + field.id).toLowerCase();
+      const haystack = [section.label, field.label, field.id, field.keywords].join(' ').toLowerCase();
       return terms.every(term => haystack.includes(term));
     });
     if (!eligible.length) continue;
@@ -135,6 +135,29 @@ function codedControls(field) {
   }
 }
 
+function ageControls() {
+  const units = select('ageUnit', AGE_SCALES.map(scale => [scale.unit, 'Completed ' + scale.unit]), 'years');
+  const value = select('value', []);
+  value.required = true;
+
+  function setAges() {
+    const scale = AGE_SCALES.find(item => item.unit === units.value);
+    const ages = Array.from({ length: scale.max + 1 }, (_, age) => {
+      const option = element('option', ageValueLabel(age, scale));
+      option.value = String(age);
+      return option;
+    });
+    const placeholder = element('option', 'Choose an age');
+    placeholder.value = '';
+    value.replaceChildren(placeholder, ...ages);
+    value.value = '';
+  }
+
+  units.addEventListener('change', setAges);
+  setAges();
+  controls.append(labeled('Age unit', units), labeled('Completed age', value));
+}
+
 function setFieldControls() {
   const field = lookupChartVariable(fieldSelect.value);
   const key = form.elements.namedItem('recordKey');
@@ -152,10 +175,7 @@ function setFieldControls() {
   if (!field) return updatePreview();
 
   if (field.type === 'age') {
-    const ages = [['', 'Choose an age'], ...AGE_VARIABLES.map(age => [String(age.years), age.label])];
-    const value = select('value', ages);
-    value.required = true;
-    controls.append(labeled('Age in completed years', value));
+    ageControls();
   } else if (field.type === 'number') {
     const value = input('value', 'number', { required: true, step: field.integer ? '1' : 'any' });
     if (field.min !== undefined) value.min = field.min;

@@ -36,11 +36,17 @@ const result = (id, label, systems = tests) => coded(id, label, systems, { resul
 const relationships = ['Mother', 'Father', 'Sibling', 'Child', 'Maternal grandmother', 'Maternal grandfather',
   'Paternal grandmother', 'Paternal grandfather', 'Aunt', 'Uncle', 'Cousin', 'Other relative', 'Unknown relationship'];
 
+export const AGE_SCALES = Object.freeze([
+  { id: 'age_years', unit: 'years', singular: 'year', max: 140, prefix: 'age_' },
+  { id: 'age_months', unit: 'months', singular: 'month', max: 120, prefix: 'age_month_' },
+  { id: 'age_weeks', unit: 'weeks', singular: 'week', max: 104, prefix: 'age_week_' },
+  { id: 'age_days', unit: 'days', singular: 'day', max: 365, prefix: null },
+].map(Object.freeze));
+
 const inventory = [
   ['demographics', 'Demographics', [
-    { id: 'age_years', label: 'Age in completed years', type: 'age' },
-    number('age_months', 'Pediatric age in months', 'mo', 0, 120, true),
-    number('age_days', 'Infant age in days', 'd', 0, 365, true),
+    { id: 'age_years', label: 'Age', type: 'age', scale: AGE_SCALES[0],
+      keywords: 'completed chronological age years months weeks days newborn infant pediatric' },
     choice('administrative_sex', 'Administrative sex as recorded', ['Female', 'Male', 'Other', 'Unknown']),
     choice('sex_assigned_at_birth', 'Sex assigned at birth', ['Female', 'Male', 'Another value as recorded', 'Unknown', 'Declined']),
     choice('sex_parameter_clinical_use', 'Sex parameter for clinical use', ['Female-typical', 'Male-typical', 'Specified', 'Unknown']),
@@ -232,17 +238,33 @@ export const CHART_SECTIONS = inventory.map(([id, label, fields, role = 'evidenc
 }));
 export const CHART_FIELDS = CHART_SECTIONS.flatMap(section => section.fields);
 
-export const AGE_VARIABLES = Object.freeze(Array.from({ length: 141 }, (_, years) => Object.freeze({
-  id: 'age_' + years,
-  years,
-  label: 'Age ' + years + (years === 1 ? ' year' : ' years'),
-  section: 'demographics',
-  type: 'age_state',
-  role: 'evidence',
-  exclusiveGroup: 'age_years',
-})));
+export function ageValueLabel(value, scale) {
+  return value + ' ' + (value === 1 ? scale.singular : scale.unit);
+}
 
-const fields = new Map([...CHART_FIELDS, ...AGE_VARIABLES].map(field => [field.id, field]));
+export const AGE_VARIABLES = Object.freeze(AGE_SCALES.filter(scale => scale.prefix).flatMap(scale =>
+  Array.from({ length: scale.max + 1 }, (_, value) => Object.freeze({
+    id: scale.prefix + value,
+    value,
+    ...(scale.unit === 'years' ? { years: value } : {}),
+    label: 'Age ' + ageValueLabel(value, scale),
+    section: 'demographics',
+    type: 'age_state',
+    role: 'evidence',
+    exclusiveGroup: 'age_years',
+    scale,
+  })),
+));
+
+const ageFields = AGE_SCALES.slice(1).map(scale => ({
+  id: scale.id,
+  label: 'Age in completed ' + scale.unit,
+  type: 'age',
+  section: 'demographics',
+  role: 'evidence',
+  scale,
+}));
+const fields = new Map([...CHART_FIELDS, ...ageFields, ...AGE_VARIABLES].map(field => [field.id, field]));
 
 export function lookupChartVariable(id) {
   return fields.get(id);

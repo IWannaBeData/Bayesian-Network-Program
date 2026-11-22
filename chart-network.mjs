@@ -1,5 +1,5 @@
 import { normalizeCode } from './catalog.mjs';
-import { lookupChartVariable, VOCABULARIES } from './chart-variables.mjs';
+import { AGE_SCALES, ageValueLabel, lookupChartVariable, VOCABULARIES } from './chart-variables.mjs';
 
 export const CHART_SCHEMA_VERSION = 'chart-variables-v1';
 export const FINDING_STATES = Object.freeze(['present', 'absent', 'uncertain', 'unknown']);
@@ -9,10 +9,22 @@ function requireText(value, label) {
   return value.trim();
 }
 
-function integerYears(value) {
-  const years = numericValue(value, { label: 'age in completed years', min: 0, max: 140, integer: true });
-  return { variableName: 'age_' + years, label: 'Age ' + years + (years === 1 ? ' year' : ' years'),
-    value: years, unit: 'years', exclusiveGroup: 'age_years' };
+function ageValue(field, input) {
+  const scale = field.id === 'age_years' && input.ageUnit
+    ? AGE_SCALES.find(item => item.unit === input.ageUnit)
+    : field.scale;
+  if (!scale) throw new TypeError('Select an age unit.');
+  const value = field.type === 'age_state' ? field.value : numericValue(input.value, {
+    label: 'age in completed ' + scale.unit, min: 0, max: scale.max, integer: true,
+  });
+  return {
+    variableName: scale.prefix ? scale.prefix + value : scale.id,
+    fieldId: scale.id,
+    label: 'Age ' + ageValueLabel(value, scale),
+    value,
+    unit: scale.unit === 'days' ? 'd' : scale.unit,
+    exclusiveGroup: 'age_years',
+  };
 }
 
 function dateValue(value, label) {
@@ -126,8 +138,8 @@ function codedValue(field, input, terminology) {
 
 function fieldValue(field, input, terminology) {
   switch (field.type) {
-    case 'age_state': return integerYears(field.years);
-    case 'age': return integerYears(input.value);
+    case 'age_state':
+    case 'age': return ageValue(field, input);
     case 'number': return { value: numericValue(input.value, field), unit: field.unit ?? null };
     case 'date': return { value: dateValue(input.value, field.label) };
     case 'code': return codedValue(field, input, terminology);
@@ -161,7 +173,7 @@ export function createChartNode(fieldId, input = {}, terminology) {
   return {
     id: variableName + instance,
     variableName,
-    fieldId: field.type === 'age_state' ? 'age_years' : field.id,
+    fieldId: data.fieldId ?? field.id,
     label: data.label ?? field.label,
     role: field.role,
     section: field.section,
