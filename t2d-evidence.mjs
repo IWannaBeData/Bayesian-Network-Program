@@ -1,4 +1,5 @@
 import { lookupCode } from './catalog.mjs';
+export { pubmedQuery } from './pubmed-query.mjs';
 
 export const T2D = 'dx_type2_diabetes';
 export const CONDITION_GIVEN_T2D = 'condition_given_t2d';
@@ -182,19 +183,6 @@ export function evidenceStatus(review, record) {
   if (review.associations.has(record.variableName)) return 'association';
   if (evidenceFor(review, record).related) return 'related';
   return 'unreviewed';
-}
-
-export function pubmedQuery(record) {
-  const literal = '"' + record.title.replace(/["\r\n]/g, '') + '"[Title/Abstract]';
-  const code = '"' + record.code + '"[Title/Abstract]';
-  const variants = [
-    '"Diabetes Mellitus, Type 2"[MeSH Terms]',
-    '"type 2 diabetes"[Title/Abstract]',
-    '"type II diabetes"[Title/Abstract]',
-    'T2DM[Title/Abstract]',
-  ];
-  const term = '(' + variants.join(' OR ') + ') AND (' + literal + ' OR ' + code + ')';
-  return { term, url: 'https://pubmed.ncbi.nlm.nih.gov/?' + new URLSearchParams({ term }) };
 }
 
 function findEstimate(review, { variableName, cohortId, direction }) {

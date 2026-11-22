@@ -1,36 +1,31 @@
 import { once } from 'node:events';
 import { readFile } from 'node:fs/promises';
-import { gunzipSync } from 'node:zlib';
-import { indexCatalog, readCatalogShard } from '../catalog.mjs';
+import { parseArgs } from 'node:util';
 import { createEvidenceReview, evidenceStatus, pubmedQuery } from '../t2d-evidence.mjs';
+import { diagnosticSearchStatus, indexDiagnosticSearches, readRepo, readScreeningCatalog } from './t2d-screening-data.mjs';
 
-const root = new URL('../', import.meta.url);
-const read = (path, encoding) => readFile(new URL(path, root), encoding);
-const [manifestText, reviewText, claimsCsv] = await Promise.all([
-  read('data/manifest.json', 'utf8'),
-  read('evidence/t2d-review.json', 'utf8'),
-  read('evidence/klimek-2015-s2.csv', 'utf8'),
+const { values: options } = parseArgs({ options: { 'search-log': { type: 'string' } } });
+const [catalog, reviewText, claimsCsv, log] = await Promise.all([
+  readScreeningCatalog(),
+  readRepo('evidence/t2d-review.json', 'utf8'),
+  readRepo('evidence/klimek-2015-s2.csv', 'utf8'),
+  options['search-log']
+    ? readFile(options['search-log'], 'utf8')
+    : readRepo('evidence/t2d-search-log.jsonl', 'utf8'),
 ]);
-const manifest = JSON.parse(manifestText);
-const shards = await Promise.all(manifest.shards.map(async ({ name }) =>
-  readCatalogShard(gunzipSync(await read('data/' + name)).toString('utf8'))
-));
-const records = shards.flat();
-const index = indexCatalog(records);
-if (records.length !== manifest.entries || index.size !== records.length) {
-  throw new Error('The catalog is incomplete or contains duplicate codes.');
-}
-
-const review = createEvidenceReview(index, JSON.parse(reviewText), claimsCsv);
-for (const record of records) {
+const review = createEvidenceReview(catalog.index, JSON.parse(reviewText), claimsCsv);
+const searches = indexDiagnosticSearches(log, catalog.catalogVersion);
+for (const record of catalog.records) {
+  const pubmed = pubmedQuery(record);
   const line = JSON.stringify({
-    catalogVersion: manifest.version,
+    catalogVersion: catalog.catalogVersion,
     code: record.code,
     variableName: record.variableName,
     title: record.title,
     reportable: record.reportable,
     evidenceStatus: evidenceStatus(review, record),
-    pubmed: pubmedQuery(record),
+    pubmed,
+    search: diagnosticSearchStatus(searches, record.code, pubmed.term),
   });
   if (!process.stdout.write(line + '\n')) await once(process.stdout, 'drain');
 }

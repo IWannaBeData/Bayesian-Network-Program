@@ -47,7 +47,20 @@ const conditional = getConditionalRows(review, query);
 
 `getConditionalRows` returns research parameter rows when the study reports every conditioning state. For example, use `icd10cm_z8632`, `kangbuk_samsung_gdm_nafld_5y` and `T2D_GIVEN_CONDITION` to retrieve the four joint rows with `parentStates`. The fatty liver anchor `icd10cm_k760` links to the same outcome and conditioning IDs. Use `givenState: 'both'` to retrieve the single estimate for both exposures. Fractions observed across variable follow-up can be read with `getConditionalEvidence`. They retain an `observed_followup_fraction` endpoint and have no fixed-horizon parameter rows. Each result retains the study's phenotype, age or eligibility constraints, endpoint, and time window. Match these to the intended network nodes before calibration. Relative measures stay in the evidence catalog. The patient network's parameters remain unset.
 
-Run `node scripts/export-t2d-screening.mjs > t2d-screening.jsonl` to generate a screening record for every catalog entry, including the code version, PubMed query and any direct evidence linkage. The query matches the official title and code. Add clinical synonyms and verify study eligibility when reviewing individual conditions. An open review status means the exact variable still has no linked extract. Screening all individual codes is in progress.
+### PubMed searches
+
+The catalog's links and the screening exporter use the same query builder. [Vetted entries](pubmed-query.mjs) add clinical phrases and NLM MeSH descriptors to the official ICD-10-CM title and code. The expansion applies to the exact mapped code. A broader search hit still needs review against the study phenotype.
+
+```sh
+node --test scripts/t2d-screening.test.mjs
+node scripts/run-t2d-screening.mjs --known-papers --code C34 >> evidence/t2d-search-log.jsonl
+node scripts/run-t2d-screening.mjs --code C34 --code I21 >> evidence/t2d-search-log.jsonl
+node scripts/export-t2d-screening.mjs > t2d-screening.jsonl
+```
+
+The offline test checks title terms for papers already in the review. The `--known-papers` command intersects the generated query with the expected PMID in PubMed, starting with [40692755](https://pubmed.ncbi.nlm.nih.gov/40692755/) for C34. Omit `--code` to run all eight known-paper checks. A regular `--code` run records the entire diagnosis query, its result count, and up to ten sample PMIDs. Append runs to the [search log](evidence/t2d-search-log.jsonl) to preserve their exact queries and dates.
+
+The exported `search` field reflects the current diagnosis query. A completed zero-result query is recorded as completed. Failed attempts have their own status. Each row also carries the independent `evidenceStatus`. A PMID check, an evidence link, or a result returned by a previous query does not mark the current diagnosis search complete. Use `--search-log PATH` with the exporter to read a different JSONL log.
 
 ## Chart variables and network export
 
