@@ -2,6 +2,7 @@ import { normalizeCode } from './catalog.mjs';
 import { AGE_SCALES, ageValueLabel, lookupChartVariable, VOCABULARIES } from './chart-variables.mjs';
 
 export const CHART_SCHEMA_VERSION = 'chart-variables-v1';
+export const CHART_CASE_KEY = 'diagnostic-program-chart-v1';
 export const FINDING_STATES = Object.freeze(['present', 'absent', 'uncertain', 'unknown']);
 
 function requireText(value, label) {
@@ -206,4 +207,19 @@ export function buildChartNetwork(selection) {
     edges: [],
     metadata: selection.filter(node => node.role === 'metadata'),
   };
+}
+
+export function readChartCase(storage) {
+  const snapshot = JSON.parse(storage.getItem(CHART_CASE_KEY));
+  if (snapshot === null) return buildChartNetwork([]);
+  if (snapshot.schemaVersion !== CHART_SCHEMA_VERSION || !Array.isArray(snapshot.nodes)) {
+    throw new TypeError('Invalid chart case.');
+  }
+  return snapshot;
+}
+
+export function saveChartCase(storage, selection) {
+  const { schemaVersion, nodes } = buildChartNetwork(selection);
+  if (nodes.length) storage.setItem(CHART_CASE_KEY, JSON.stringify({ schemaVersion, nodes }));
+  else storage.removeItem(CHART_CASE_KEY);
 }
