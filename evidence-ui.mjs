@@ -58,11 +58,16 @@ function renderProbability(review, candidate) {
       ? cohort.endpointKind === 'co_prevalence' ? 'documented type 2 diabetes' : 'newly documented type 2 diabetes'
       : candidate.phenotype;
     const row = element('p', '', 'estimate');
-    row.append(
-      element('strong', formatPercent.format(estimate.probability)),
-      ' with ' + outcome + ' among ' + estimate.givenLabel.charAt(0).toLowerCase() + estimate.givenLabel.slice(1) +
-        (cohort.endpointKind === 'observed_followup_fraction' ? ' during observed follow-up' : ''),
-    );
+    const value = element('strong', formatPercent.format(estimate.probability));
+    if (estimate.endpoint.kind === 'observed_followup_fraction') {
+      const group = estimate.givenLabel;
+      row.append(value, ' with ' + outcome + ' among ' +
+        group.charAt(0).toLowerCase() + group.slice(1) + ' during observed follow-up');
+    } else {
+      const years = estimate.endpoint.horizonYears;
+      const event = years ? outcome + ' within ' + years + (years === 1 ? ' year' : ' years') : outcome;
+      row.append('P(' + event + ' | ' + estimate.givenLabel + ') = ', value);
+    }
     section.append(row);
   }
 
