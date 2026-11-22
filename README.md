@@ -22,7 +22,7 @@ const node = draftObservation(code, 'prior_history');
 
 ## Chart variables and network export
 
-[chart-variables.mjs](chart-variables.mjs) defines the chart fields and every completed-year age identifier from `age_0` through `age_140`. The builder brings together common chart sections documented by [athenaOne](https://docs.athenahealth.com/downloads/import-specification-download), [eClinicalWorks](https://www.eclinicalworks.com/products-services/patient-engagement/check-in/), and [Epic](https://open.epic.com/EHITables/GetTable/_index.htm), with [USCDI](https://isp.healthit.gov/all-uscdi-versions) as a standards reference. Practice-specific and specialty fields can be added using local terms or a named custom field.
+[chart-variables.mjs](chart-variables.mjs) defines the chart fields and age variables. The age picker supports 0–140 completed years (`age_0` through `age_140`), 0–120 completed months (`age_month_0` through `age_month_120`), 0–104 completed weeks (`age_week_0` through `age_week_104`), and 0–365 completed days (`age_days`, with the day count as its value). A chart snapshot holds one selected age across units. The builder brings together common chart sections documented by [athenaOne](https://docs.athenahealth.com/downloads/import-specification-download), [eClinicalWorks](https://www.eclinicalworks.com/products-services/patient-engagement/check-in/), and [Epic](https://open.epic.com/EHITables/GetTable/_index.htm), with [USCDI](https://isp.healthit.gov/all-uscdi-versions) as a standards reference. Practice-specific and specialty fields can be added using local terms or a named custom field.
 
 [chart-network.mjs](chart-network.mjs) creates draft nodes and generates a snapshot. Existing ICD-10-CM codes retain their catalog variable name for a patient diagnosis or coded symptom. Family and history fields preserve the code under a separate contextual identifier. Medications, lab results and other repeatable observations accept source codes, dates, units, and record keys. An explicitly unknown observation has an unresolved status. An untouched field has no observation. Identifiers, registrations and notes remain in the export's metadata.
 
@@ -30,7 +30,7 @@ const node = draftObservation(code, 'prior_history');
 import { createChartNode, selectChartNode, buildChartNetwork } from './chart-network.mjs';
 
 let selection = [];
-selection = selectChartNode(selection, createChartNode('age_54'));
+selection = selectChartNode(selection, createChartNode('age_week_6'));
 selection = selectChartNode(selection, createChartNode('smoking_status', { value: 'Former' }));
 selection = selectChartNode(selection, createChartNode('lab_result', {
   system: 'loinc', code: '4548-4', label: 'Hemoglobin A1c',
