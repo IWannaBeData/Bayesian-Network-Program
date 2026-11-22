@@ -1,4 +1,5 @@
-import { CHAPTERS, RELEASE, readCatalogShard } from './catalog.mjs';
+import { CHAPTERS } from './catalog.mjs';
+import { loadCatalogRecords } from './catalog-loader.mjs';
 
 const search = document.querySelector('#catalog-search');
 const chapter = document.querySelector('#catalog-chapter');
@@ -54,6 +55,15 @@ function renderPage() {
     cell(row, record.tags.map(codeText));
     const typeCell = cell(row, record.reportable ? 'Reportable code' : 'Hierarchy header');
     if (record.reportable) typeCell.className = 'reportable';
+    if (record.reportable) {
+      const link = document.createElement('a');
+      link.textContent = 'Use in builder';
+      link.setAttribute('aria-label', 'Use ' + record.code + ' in chart builder');
+      link.href = './chart.html?' + new URLSearchParams({ icd10cm: record.code });
+      cell(row, [link]);
+    } else {
+      cell(row, '—');
+    }
     fragment.append(row);
   }
 
@@ -124,34 +134,11 @@ download.addEventListener('click', () => {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
 
-async function fetchCatalogFile(path) {
-  const response = await fetch(new URL('./data/' + path, import.meta.url));
-  if (!response.ok) throw new Error('Catalog request failed for ' + path + ' (' + response.status + ')');
-  return response;
-}
-
 async function loadCatalog() {
   retry.hidden = true;
   status.textContent = 'Loading the official catalog…';
   try {
-    const manifest = await (await fetchCatalogFile('manifest.json')).json();
-    if (manifest.version !== RELEASE.version || manifest.system !== RELEASE.system) {
-      throw new Error('The served catalog release does not match the application.');
-    }
-    const parts = await Promise.all(manifest.shards.map(async shard => {
-      const response = await fetchCatalogFile(shard.name);
-      const text = await new Response(
-        response.body.pipeThrough(new DecompressionStream('gzip'))
-      ).text();
-      const rows = readCatalogShard(text);
-      if (rows.length !== shard.rows) throw new Error('Incorrect row count for ' + shard.name);
-      return rows;
-    }));
-    const loaded = parts.flat();
-    if (loaded.length !== manifest.entries ||
-        loaded.filter(record => record.reportable).length !== manifest.reportable) {
-      throw new Error('The loaded catalog is incomplete.');
-    }
+    const loaded = await loadCatalogRecords();
     records = loaded.map(record => {
       record.searchText = [
         record.code, record.code.replace('.', ''), record.title, record.variableName,

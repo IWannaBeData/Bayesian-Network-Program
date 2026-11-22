@@ -174,7 +174,8 @@ tbody tr:nth-child(even) { background: #f7faf7; }
 .catalog-toolbar, .pagination { display: flex; align-items: center; flex-wrap: wrap; gap: 0.65rem; }
 .catalog-toolbar { justify-content: space-between; margin-block: 0.8rem 0.65rem; }
 .catalog-toolbar p, .pagination span { font-size: 0.88rem; color: var(--muted); }
-.catalog-table { min-width: 50rem; }
+.catalog-table { min-width: 57rem; }
+.catalog-table td:last-child { white-space: nowrap; }
 .catalog-table th:first-child { width: 7.4rem; }
 .catalog-table td:nth-child(3) { width: 13rem; }
 .catalog-table td:nth-child(4) { width: 9rem; }

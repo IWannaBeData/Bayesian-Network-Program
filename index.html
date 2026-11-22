@@ -16,7 +16,7 @@
       <nav aria-label="Sections">
         <a href="#review">Literature</a>
         <a href="#network">Network design</a>
-        <a href="#ehr">EHR integration</a>
+        <a href="./chart.html">Chart builder</a>
         <a href="#catalog">Diagnosis catalog</a>
       </nav>
     </div>
@@ -27,9 +27,10 @@
       <div class="wrap hero-grid">
         <div>
           <h1 id="page-title">Bayesian diagnosis from medical history</h1>
-          <p class="lede">A literature review and design for an EHR app that uses a patient’s documented history to update the probability of a diagnosis.</p>
+          <p class="lede">A literature review and Bayesian network design for using documented medical history to update the probability of a diagnosis.</p>
           <div class="hero-actions">
-            <a class="button primary" href="#catalog">Browse the diagnosis catalog</a>
+            <a class="button primary" href="./chart.html">Open the chart builder</a>
+            <a class="button secondary" href="#catalog">Browse the diagnosis catalog</a>
             <a class="button secondary" href="#review">Read the literature review</a>
           </div>
         </div>
@@ -115,7 +116,7 @@
         </div>
         <p>Link a prior diabetes state to the acute MI hypothesis only after defining a suitable evidence model and accounting for shared predictors. Use a versioned map with relations such as <code>exact</code>, <code>broader</code>, and <code>review_required</code>. For example, <code>I21.9</code> represents a record coded as unspecified acute MI. The clinical hypothesis needs a definition covering all qualifying forms.</p>
         <p>States such as <code>present</code> and <code>absent</code> describe a clinical node. A missing observation stays unobserved. A verified absence and an empty problem list carry different information. For a coding-observation node, <code>not_recorded</code> requires that the specified window and record coverage were actually checked.</p>
-        <p class="sources"><a href="https://www.cms.gov/files/document/fy-2027-icd-10-cm-coding-guidelines.pdf">ICD-10-CM coding guidelines</a> · <a href="https://hl7.org/fhir/R4/condition-definitions.html">FHIR R4 Condition definitions</a></p>
+        <p class="sources"><a href="https://www.cms.gov/files/document/fy-2027-icd-10-cm-coding-guidelines.pdf">ICD-10-CM coding guidelines</a></p>
 
         <h3>Structure for thousands of variables</h3>
         <ol class="steps">
@@ -134,7 +135,7 @@
             <tbody>
               <tr><th scope="row"><code>lookupCode(index, code)</code></th><td>Available in <a href="./catalog.mjs">catalog.mjs</a>. Accepts dotted or undotted ICD-10-CM and returns the release-bound catalog record when present.</td></tr>
               <tr><th scope="row"><code>draftObservation(record, windowId)</code></th><td>Available now. Returns a network-ready observation definition keyed by its code and window, with an empty parent list and an unset parameter set.</td></tr>
-              <tr><th scope="row"><code>normalizeHistory(bundle, asOf, terminology)</code></th><td>Planned. Emit deduplicated, timestamped evidence candidates, coding provenance, and explicit missingness or hold states.</td></tr>
+              <tr><th scope="row"><code>createChartNode(fieldId, input, terminology)</code></th><td>Available in <a href="./chart-network.mjs">chart-network.mjs</a>. Creates a draft node with a recorded value, stable variable name, chart context and an unset parameter set.</td></tr>
               <tr><th scope="row"><code>compileNetwork(definition, parameterSet)</code></th><td>Planned. Validate window definitions, DAG topology, and conditional probability distributions. Reject inference requests when required distributions are unset.</td></tr>
               <tr><th scope="row"><code>infer(queryIds, evidence, asOf, horizon)</code></th><td>Planned. Return marginals for the pinned model version with the inference method, evidence used, provenance, and an unavailable status where useful estimates cannot be computed.</td></tr>
             </tbody>
@@ -144,27 +145,9 @@
         <p>Capture the target variable or edge, parent states, case definition, study design, population, care setting, exposure and outcome timing, follow-up, effect measure, adjustment set, uncertainty, and DOI or PMID. Keep the source estimate and any transformation into a model parameter traceable. Estimate priors from a compatible cohort. Fit or elicit conditional distributions jointly, accounting for shared predictors and correlated evidence.</p>
       </section>
 
-      <section class="section" id="ehr" aria-labelledby="ehr-title">
-        <h2 id="ehr-title">EHR integration</h2>
-        <p class="intro">Use a read-only SMART on FHIR app with an EHR launch and authorized patient context. Practice Fusion is the first candidate because its public documentation describes provider launch and FHIR R4. eClinicalWorks is a second adapter target through its provider-centric FHIR developer program. Vendor registration, site enablement, and sandbox testing come before a clinical connection.</p>
-        <div class="table-scroll" role="region" aria-label="Vendor integration paths" tabindex="0">
-          <table>
-            <thead><tr><th scope="col">EHR</th><th scope="col">What to verify in the vendor sandbox</th></tr></thead>
-            <tbody>
-              <tr><th scope="row">Practice Fusion</th><td>Provider SMART launch, authorized patient and encounter context, permitted Condition searches, pagination, and problem-list versus encounter categories. <a href="https://practicefusion.com/fhir/get-started/">Onboarding</a> · <a href="https://www.practicefusion.com/fhir/api-specifications/">FHIR API specifications</a></td></tr>
-              <tr><th scope="row">eClinicalWorks</th><td>Provider app registration, practice activation, available launch capabilities and scopes, and site-specific Condition profile and search support. <a href="https://www.eclinicalworks.com/resources/certified-ehr-technology/">API access information</a> · <a href="https://fhir.eclinicalworks.com/">Developer portal</a></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <p>Use FHIR <code>Condition</code> for problem-list and encounter diagnoses. Preserve source coding system and version, category, clinical and verification status, onset, abatement, recorded date, encounter, and resource provenance when available. Hold provisional or differential codes for review and exclude entries marked entered-in-error. Resolve conflicting status and overlapping episodes before conditioning. Keep family history and personal history distinct. Apply both clinical timing and when the information became available to prevent look-ahead.</p>
-        <p>SNOMED CT is a future input. Preserve the original coding and use a licensed, versioned mapping when needed. The NLM map runs from SNOMED CT to ICD-10-CM and can yield multiple targets under mapping rules.</p>
-        <p class="sources"><a href="https://www.hl7.org/fhir/smart-app-launch/STU2/app-launch.html">SMART App Launch 2.0</a> · <a href="https://www.hl7.org/fhir/us/core/STU6.1/StructureDefinition-us-core-condition-problems-health-concerns.html">US Core problem-list profile</a> · <a href="https://www.hl7.org/fhir/us/core/STU6.1/StructureDefinition-us-core-condition-encounter-diagnosis.html">US Core encounter profile</a> · <a href="https://www.nlm.nih.gov/research/umls/mapping_projects/faqsnomedct_to_icd10cm.html">NLM map FAQ</a></p>
-        <p class="callout">This research site contains public terminology and design documentation. The future EHR app will require a separate runtime for authorized patient data. The catalog runs entirely in the browser.</p>
-      </section>
-
       <section class="section catalog" id="catalog" aria-labelledby="catalog-title">
         <h2 id="catalog-title">Diagnosis code catalog</h2>
-        <p class="intro">Search the complete FY 2027 ICD-10-CM order file, including reportable codes and hierarchy headers. Every entry has a stable variable name and chapter and category tags. Clinical hypotheses use reviewed mappings from these entries.</p>
+        <p class="intro">Search the complete FY 2027 ICD-10-CM order file, including reportable codes and hierarchy headers. Every entry has a stable variable name and chapter and category tags. Reportable codes can be selected in the chart builder.</p>
         <div class="catalog-panel">
           <div class="filters">
             <label>Search codes, titles, variables, or tags
@@ -188,7 +171,7 @@
           </div>
           <div class="table-scroll" role="region" aria-label="Catalog results" tabindex="0">
             <table class="catalog-table">
-              <thead><tr><th scope="col">ICD-10-CM</th><th scope="col">Official title</th><th scope="col">Variable name</th><th scope="col">Tags</th><th scope="col">Entry type</th></tr></thead>
+              <thead><tr><th scope="col">ICD-10-CM</th><th scope="col">Official title</th><th scope="col">Variable name</th><th scope="col">Tags</th><th scope="col">Entry type</th><th scope="col">Chart builder</th></tr></thead>
               <tbody id="catalog-results"></tbody>
             </table>
           </div>
